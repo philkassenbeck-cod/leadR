@@ -56,7 +56,12 @@ QUESTIONS PUISSANTES POUR LE TEAM COACHING :
 ${questionsBlock}
 
 ---
+typescriptRESSOURCE — PSYCHOLOGIE DU LEADERSHIP (Gabor Maté) :
+À citer uniquement quand pertinent : paralysie décisionnelle, peur du conflit, boucles mentales, besoin de validation, épuisement chronique, difficulté à dire non.
+${GABOR_MATE.applicationCoaching.travailProfond.map(p => `- ${p}`).join("\n")}
+Principe clé : "${GABOR_MATE.applicationCoaching.principe}"
 
+---
 FORMAT DE TES RÉPONSES :
 - Commence par reformuler ce que tu comprends de la situation de l'équipe.
 - Donne une lecture claire des forces collectives.
