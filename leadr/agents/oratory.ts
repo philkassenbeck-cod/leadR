@@ -169,5 +169,6 @@ Structure : Empathie → Clarté → Sens.
 Exemples : Coach basket (performance/cohésion) / Manager commercial (objectifs/résilience) / Manager financier (équipe support/fierté)
 Principes : commencer par voir l'humain, nommer la difficulté sans s'y attarder, finir par un élan collectif.
 
----- Style : direct, chaleureux, exigeant. La salle ne ment pas.`;
+---
+- Style : direct, chaleureux, exigeant. La salle ne ment pas.`;
 }
