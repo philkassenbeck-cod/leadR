@@ -1,4 +1,4 @@
-import Link from "next/link";
+itypescriptimport Link from "next/link";
 
 const agents = [
   {
@@ -6,7 +6,7 @@ const agents = [
     label: "Team Coaching",
     description: "Cartographie des forces collectives, angles morts, dynamiques d'équipe.",
     href: "/team-coaching",
-    color: "bg-violet-50 border-violet-200 hover:border-violet-400",
+    color: "bg-amber-50 border-amber-200 hover:border-amber-400",
     icon: "◎",
   },
   {
@@ -14,7 +14,7 @@ const agents = [
     label: "Successful Manager Program",
     description: "Délégation, feedback, motivation, conduite du changement — par les forces.",
     href: "/leadership/smp",
-    color: "bg-teal-50 border-teal-200 hover:border-teal-400",
+    color: "bg-emerald-50 border-emerald-200 hover:border-emerald-400",
     icon: "▲",
   },
   {
@@ -22,7 +22,7 @@ const agents = [
     label: "Successful Leader Program",
     description: "Leader-coach, art oratoire, Appreciative Inquiry, gestion des conflits.",
     href: "/leadership/slp",
-    color: "bg-teal-50 border-teal-200 hover:border-teal-400",
+    color: "bg-sky-50 border-sky-200 hover:border-sky-400",
     icon: "◆",
   },
   {
@@ -38,33 +38,39 @@ const agents = [
     label: "Coaching Individuel",
     description: "Portrait de forces, hypothèses de développement, questions puissantes.",
     href: "/individual-coaching",
-    color: "bg-rose-50 border-rose-200 hover:border-rose-400",
+    color: "bg-purple-50 border-purple-200 hover:border-purple-400",
     icon: "●",
   },
 ];
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-white px-6 py-16 max-w-2xl mx-auto">
+    <main className="min-h-screen px-6 py-16 max-w-2xl mx-auto" style={{background: "#FAF7F2"}}>
       <div className="mb-12">
-        <h1 className="text-3xl font-medium text-gray-900 mb-2">LeadR</h1>
-        <p className="text-gray-500 text-lg">Plateforme de coaching strengths-based</p>
+        <h1 className="text-3xl font-medium mb-1" style={{color: "#2C2318", fontFamily: "Georgia, serif"}}>LeadR</h1>
+        <p className="text-sm tracking-widest uppercase" style={{color: "#A8956E"}}>Strengths-based coaching</p>
+      </div>
+      <div className="mb-6">
+        <p className="text-xs tracking-widest uppercase" style={{color: "#C9A96E"}}>Choisir un espace</p>
       </div>
       <div className="space-y-3">
         {agents.map((agent) => (
           <Link key={agent.id} href={agent.href}
             className={`block border rounded-xl p-5 transition-all duration-150 ${agent.color}`}>
-            <div className="flex items-start gap-4">
-              <span className="text-2xl mt-0.5">{agent.icon}</span>
-              <div>
-                <div className="font-medium text-gray-900 mb-1">{agent.label}</div>
-                <div className="text-sm text-gray-500">{agent.description}</div>
+            <div className="flex items-center gap-4">
+              <span className="text-xl" style={{color: "#C9A96E"}}>{agent.icon}</span>
+              <div className="flex-1">
+                <div className="font-medium mb-1" style={{color: "#2C2318"}}>{agent.label}</div>
+                <div className="text-sm" style={{color: "#A8956E"}}>{agent.description}</div>
               </div>
+              <span style={{color: "#C9A96E", fontSize: "20px"}}>›</span>
             </div>
           </Link>
         ))}
       </div>
-      <p className="mt-12 text-xs text-gray-300 text-center">LeadR · Strengths-based · FR / EN / DE</p>
+      <div className="mt-12 pt-6" style={{borderTop: "1px solid #E0D8C8"}}>
+        <p className="text-xs text-center tracking-widest" style={{color: "#C9A96E"}}>FR · EN · DE &nbsp;·&nbsp; OPTIMUP © 2026</p>
+      </div>
     </main>
   );
 }
