@@ -55,7 +55,7 @@ export function getTop5Summary(top5: string[]): string {
     return `${i + 1}. ${t} (${talent.fr}) — ${talent.essence}`;
   }).join("\n");
 }
-ypescriptexport const POSTURE_LEADERSHIP = {
+export const POSTURE_LEADERSHIP = {
   centrageSurSoi: {
     titre: "Comment devenir un produit de luxe pour les autres",
     source: "Philippe CA",
