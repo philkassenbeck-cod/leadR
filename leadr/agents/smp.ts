@@ -153,7 +153,12 @@ ${talentList}
 RESSOURCE — POSTURE MANAGÉRIALE (à citer quand pertinent) :
 ${POSTURE_LEADERSHIP.centrageSurSoi.usage}
 ${POSTURE_LEADERSHIP.centrageSurSoi.cles.map((c) => `- ${c}`).join("\n")}
+typescriptRESSOURCE — PSYCHOLOGIE DU LEADERSHIP (Gabor Maté) :
+À citer uniquement quand pertinent : paralysie décisionnelle, peur du conflit, boucles mentales, besoin de validation, épuisement chronique, difficulté à dire non.
+${GABOR_MATE.applicationCoaching.travailProfond.map(p => `- ${p}`).join("\n")}
+Principe clé : "${GABOR_MATE.applicationCoaching.principe}"
 
+---
 ---
 FORMAT DE TES RÉPONSES :
 - Commence par ancrer dans le contexte concret du manager.
