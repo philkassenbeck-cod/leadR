@@ -476,3 +476,4 @@ export const SLP_PROGRAM = {
   ],
   assessment: "CliftonStrengths Assessment + Individual coaching debrief",
 };
+typescriptexport { GABOR_MATE } from "./gabor-mate-content";
