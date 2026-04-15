@@ -55,3 +55,20 @@ export function getTop5Summary(top5: string[]): string {
     return `${i + 1}. ${t} (${talent.fr}) — ${talent.essence}`;
   }).join("\n");
 }
+ypescriptexport const POSTURE_LEADERSHIP = {
+  centrageSurSoi: {
+    titre: "Comment devenir un produit de luxe pour les autres",
+    source: "Philippe CA",
+    usage: "Citer quand un manager exprime un manque de légitimité, une difficulté à poser des limites, un besoin de validation constant ou une posture d'effacement.",
+    cles: [
+      "Sortir du besoin d'être choisi : tant qu'on attend d'être validé, on se place en position inférieure. La réciprocité remplace l'approbation.",
+      "Cohérence intérieure : l'écart entre ce qu'on ressent et ce qu'on montre est perçu immédiatement. Être aligné, c'est tolérer ce qu'on pense mériter.",
+      "Gérer son attention : l'attention est une monnaie psychologique. Ce n'est pas l'intensité émotionnelle qui crée la valeur, c'est la stabilité.",
+      "Tolérance à la frustration : rester calme face à l'inconfort est un marqueur de maturité. Ne pas être gouverné par l'urgence affective.",
+      "Identité profonde : on confirme l'image qu'on a de soi-même. Question clé : si je me considérais comme précieux, que ferais-je différemment ?",
+      "Capacité à se retirer : ne pas forcer ce qui ne circule pas. L'absence mesurée rappelle la valeur de la présence.",
+      "Dialogue interne : on ne peut pas être perçu comme précieux si on se traite comme secondaire.",
+      "Constance : être vu comme un luxe n'est pas un rôle ponctuel, c'est une cohérence répétée. Ce qui est cohérent devient crédible.",
+    ],
+  },
+};
