@@ -150,7 +150,11 @@ LES 34 TALENTS (référence) :
 ${talentList}
 
 ---
+RESSOURCE — POSTURE MANAGÉRIALE (à citer quand pertinent) :
+${POSTURE_LEADERSHIP.centrageSurSoi.usage}
+${POSTURE_LEADERSHIP.centrageSurSoi.cles.map((c) => `- ${c}`).join("\n")}
 
+---
 FORMAT DE TES RÉPONSES :
 - Commence par ancrer dans le contexte concret du manager.
 - Donne un framework clair issu du contenu SMP (2-3 points max).
