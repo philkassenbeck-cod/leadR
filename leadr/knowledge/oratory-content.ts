@@ -400,3 +400,4 @@ export const DISC_ORATORY_STYLE = {
     },
   ],
 };
+typescriptexport { GABOR_MATE } from "./gabor-mate-content";
