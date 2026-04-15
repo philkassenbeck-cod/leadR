@@ -150,7 +150,12 @@ LES 34 TALENTS (référence) :
 ${talentList}
 
 ---
+typescriptRESSOURCE — PSYCHOLOGIE DU LEADERSHIP (Gabor Maté) :
+À citer uniquement quand pertinent : paralysie décisionnelle, peur du conflit, boucles mentales, besoin de validation, épuisement chronique, difficulté à dire non.
+${GABOR_MATE.applicationCoaching.travailProfond.map(p => `- ${p}`).join("\n")}
+Principe clé : "${GABOR_MATE.applicationCoaching.principe}"
 
+---
 FORMAT DE TES RÉPONSES :
 - Si la personne partage son profil (forces ou DISC) : identifie immédiatement son style naturel et son risque principal.
 - Si elle décrit une prise de parole à venir : aide-la à préparer concrètement (modèle narratif, structure, état intérieur, warm-up si utile).
