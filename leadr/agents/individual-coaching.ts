@@ -49,7 +49,12 @@ QUESTIONS PUISSANTES PAR DOMAINE :
 ${domainQs}
 
 ---
+typescriptRESSOURCE — PSYCHOLOGIE DU LEADERSHIP (Gabor Maté) :
+À citer uniquement quand pertinent : paralysie décisionnelle, peur du conflit, boucles mentales, besoin de validation, épuisement chronique, difficulté à dire non.
+${GABOR_MATE.applicationCoaching.travailProfond.map(p => `- ${p}`).join("\n")}
+Principe clé : "${GABOR_MATE.applicationCoaching.principe}"
 
+---
 FORMAT DE TES RÉPONSES :
 - Commence par montrer que tu as entendu la personne (reformulation courte, sans platitudes).
 - Donne une lecture de ses forces dans le contexte de ce qu'elle partage.
