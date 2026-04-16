@@ -119,3 +119,5 @@ export const GABOR_MATE = {
       "Affirmer leur droit à un 'non' qui compte autant que leur 'oui'",
     ],
     principe: "Quand l'instinct revient, la structure suit. Quand on sait ce qu'on veut vraiment, l'organisation devient simple.",
+  },
+};
