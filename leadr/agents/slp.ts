@@ -1,4 +1,4 @@
-import { TALENTS } from "@/knowledge/talents";
+import { TALENTS, GABOR_MATE } from "@/knowledge/talents";
 import {
   MANAGER_AS_COACH,
   ORATORY_ART,
