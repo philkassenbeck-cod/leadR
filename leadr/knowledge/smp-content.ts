@@ -456,4 +456,4 @@ export const BOTTOM_UP_COM = {
     ],
   },
 };
-typescriptexport { GABOR_MATE } from "./gabor-mate-content";
+export { GABOR_MATE } from "./gabor-mate-content";
