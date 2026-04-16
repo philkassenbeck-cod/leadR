@@ -27,7 +27,7 @@ type Props = {
   welcomeMessage?: string;
 };
 
-export default function Chat({ agentId, context = {}, placeholder = "Écris ton message...", welcomeMessage }: Props) {
+export default function Chat({ agentId, context = {}, placeholder, welcomeMessage }: Props) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -71,7 +71,6 @@ export default function Chat({ agentId, context = {}, placeholder = "Écris ton 
     setInput("");
     setLoading(true);
 
-    // Create conversation on first message (if logged in)
     let convId = conversationId;
     if (!convId && isLoggedIn) {
       const conv = await createConversation(agentId, text.slice(0, 50));
@@ -81,12 +80,10 @@ export default function Chat({ agentId, context = {}, placeholder = "Écris ton 
       }
     }
 
-    // Save user message
     if (convId) {
       await saveMessage(convId, "user", text);
     }
 
-    // Build context with profile data
     const enrichedContext = {
       ...context,
       profile: profile ? {
@@ -116,7 +113,6 @@ export default function Chat({ agentId, context = {}, placeholder = "Écris ton 
       
       setMessages([...newMessages, { role: "assistant", content: assistantMessage }]);
 
-      // Save assistant message
       if (convId) {
         await saveMessage(convId, "assistant", assistantMessage);
       }
@@ -141,20 +137,28 @@ export default function Chat({ agentId, context = {}, placeholder = "Écris ton 
     el.style.height = Math.min(el.scrollHeight, 160) + "px";
   }
 
-  // Personalized welcome message
-  const getWelcomeMessage = () => {
+  const getPlaceholder = () => {
+    if (placeholder) return placeholder;
+    if (profile?.language === "fr") return "Décris ta situation...";
+    if (profile?.language === "de") return "Beschreibe deine Situation...";
+    return "Describe your situation...";
+  };
+
+  const getWelcome = () => {
+    if (profile?.full_name && welcomeMessage) {
+      return `Welcome back, ${profile.full_name}! ${welcomeMessage}`;
+    }
     if (profile?.full_name) {
-      return `Welcome back, ${profile.full_name}! ${welcomeMessage || "What would you like to explore today?"}`;
+      return `Welcome back, ${profile.full_name}! What would you like to explore today?`;
     }
     return welcomeMessage;
   };
 
   return (
     <div className="flex flex-col h-[calc(100vh-120px)]">
-      {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6">
-        {getWelcomeMessage() && messages.length === 0 && (
-          <div className="text-gray-400 text-sm text-center pt-8">{getWelcomeMessage()}</div>
+        {getWelcome() && messages.length === 0 && (
+          <div className="text-gray-400 text-sm text-center pt-8">{getWelcome()}</div>
         )}
         {messages.map((m, i) => (
           <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
@@ -183,7 +187,6 @@ export default function Chat({ agentId, context = {}, placeholder = "Écris ton 
         <div ref={bottomRef} />
       </div>
 
-      {/* Input */}
       <div className="px-4 pb-6">
         <div className="flex items-end gap-2 border border-gray-200 rounded-2xl px-4 py-3 focus-within:border-gray-400 transition-colors bg-white">
           <textarea
@@ -192,7 +195,7 @@ export default function Chat({ agentId, context = {}, placeholder = "Écris ton 
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             onInput={handleInput}
-            placeholder={profile?.language === "en" ? "Describe your situation..." : profile?.language === "de" ? "Beschreibe deine Situation..." : "Décris ta situation..."}
+            placeholder={getPlaceholder()}
             rows={1}
             className="flex-1 resize-none text-sm text-gray-800 placeholder-gray-400 outline-none bg-transparent"
             style={{ maxHeight: "160px" }}
@@ -208,9 +211,9 @@ export default function Chat({ agentId, context = {}, placeholder = "Écris ton 
           </button>
         </div>
         <p className="text-xs text-gray-300 text-center mt-2">
-          {profile?.language === "en" ? "Enter to send · Shift+Enter for new line" : 
+          {profile?.language === "fr" ? "Entrée pour envoyer · Shift+Entrée pour nouvelle ligne" : 
            profile?.language === "de" ? "Enter zum Senden · Shift+Enter für neue Zeile" :
-           "Entrée pour envoyer · Shift+Entrée pour nouvelle ligne"}
+           "Enter to send · Shift+Enter for new line"}
         </p>
       </div>
     </div>
