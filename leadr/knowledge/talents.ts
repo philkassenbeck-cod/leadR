@@ -72,5 +72,5 @@ export const POSTURE_LEADERSHIP = {
     ],
   },
 };
-typescriptexport { GABOR_MATE } from "./gabor-mate-content";
+export { GABOR_MATE } from "./gabor-mate-content";
 export { PEP_TALKS } from "./pep-talks-content";
