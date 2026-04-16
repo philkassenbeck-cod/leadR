@@ -34,7 +34,7 @@ export default function CoachPro() {
           Want early access? Get in touch.
         </p>
         
-        
+        <a
           href="mailto:pkassenbeck@optimup.ch?subject=LeadR Coach Pro - Early Access"
           className="inline-block px-8 py-3 text-base font-medium rounded-full transition-all hover:scale-105 mb-8"
           style={{ backgroundColor: "#2C2318", color: "#FAF7F2" }}
