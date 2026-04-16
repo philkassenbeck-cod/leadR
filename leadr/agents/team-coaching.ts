@@ -1,4 +1,4 @@
-import { TALENTS, getTop5Summary } from "@/knowledge/talents";
+import { TALENTS, getTop5Summary, GABOR_MATE } from "@/knowledge/talents";
 import { TEAM_QUESTIONS } from "@/knowledge/questions";
 
 export function buildTeamCoachingPrompt(context?: {
