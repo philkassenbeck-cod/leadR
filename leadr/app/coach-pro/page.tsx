@@ -33,7 +33,7 @@ export default function CoachPro() {
           </div>
         </div>
 
-        {/* CTA */}
+       {/* CTA */}
         <p className="text-sm mb-6" style={{ color: "#A8956E" }}>
           Want early access? Get in touch.
         </p>
@@ -48,7 +48,6 @@ export default function CoachPro() {
         >
           Contact Us
         </a>
-
         {/* Back link */}
         <div>
           <Link
