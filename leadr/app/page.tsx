@@ -2,73 +2,56 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <main
-      className="min-h-screen flex flex-col items-center justify-center px-6"
-      style={{ background: "#FAF7F2" }}
-    >
-      <div className="mb-8 text-center">
-        <h1
-          className="text-4xl font-medium mb-2"
-          style={{ color: "#2C2318", fontFamily: "Georgia, serif" }}
-        >
+    <main className="min-h-screen flex flex-col items-center justify-center px-6" style={{ backgroundColor: "#FAF7F2" }}>
+      <div className="max-w-2xl w-full text-center">
+        
+        {/* Logo / Title */}
+        <h1 className="text-5xl font-light tracking-tight mb-2" style={{ color: "#2C2318" }}>
           LeadR
         </h1>
-        <p
-          className="text-sm tracking-widest uppercase"
-          style={{ color: "#A8956E" }}
-        >
+        <p className="text-lg mb-12" style={{ color: "#A8956E" }}>
           Leadership Intelligence
         </p>
-      </div>
 
-      <div className="max-w-md text-center mb-10">
-        <h2
-          className="text-2xl font-medium mb-4"
-          style={{ color: "#2C2318", fontFamily: "Georgia, serif" }}
-        >
+        {/* Main headline */}
+        <h2 className="text-2xl font-light mb-4" style={{ color: "#2C2318" }}>
           Become the leader you're meant to be
         </h2>
-        <p className="text-base" style={{ color: "#A8956E" }}>
-          Your AI-powered leadership companion.
-          <br />
-          Personal growth. Team development. Real results.
+        <p className="text-base mb-10" style={{ color: "#6B5D4D" }}>
+          AI-powered coaching grounded in your strengths.<br />
+          Practical frameworks. Real situations. Your growth.
         </p>
-      </div>
 
-      <Link
-        href="/leadership"
-        className="px-10 py-4 rounded-xl text-lg font-medium transition-all duration-200 hover:scale-105"
-        style={{
-          background: "#2C2318",
-          color: "#FAF7F2",
-          boxShadow: "0 4px 14px rgba(44, 35, 24, 0.25)",
-        }}
-      >
-        Start
-      </Link>
-
-      <p className="mt-6 text-xs tracking-widest" style={{ color: "#C9A96E" }}>
-        FR · EN · DE
-      </p>
-
-      <div className="flex-1 min-h-[120px]"></div>
-
-      <div
-        className="w-full max-w-md pt-6 pb-8 text-center"
-        style={{ borderTop: "1px solid #E0D8C8" }}
-      >
+        {/* Main CTA */}
         <Link
-          href="/coach-pro"
-          className="text-sm transition-colors duration-200 hover:opacity-80"
-          style={{ color: "#A8956E" }}
+          href="/leadership"
+          className="inline-block px-10 py-4 text-lg font-medium rounded-full transition-all hover:scale-105"
+          style={{ 
+            backgroundColor: "#2C2318", 
+            color: "#FAF7F2",
+          }}
         >
-          Are you a coach? <span style={{ color: "#C9A96E" }}>→</span>
+          Start
         </Link>
 
-        <p className="mt-4 text-xs tracking-widest" style={{ color: "#C9A96E" }}>
-          OPTIMUP © 2026
-        </p>
+        {/* Spacer */}
+        <div className="mt-20"></div>
+
+        {/* Coach Pro link - discrete */}
+        <Link
+          href="/coach-pro"
+          className="text-sm hover:underline transition-all"
+          style={{ color: "#A8956E" }}
+        >
+          Are you a coach? →
+        </Link>
+
       </div>
+
+      {/* Footer */}
+      <footer className="absolute bottom-6 text-xs" style={{ color: "#A8956E" }}>
+        LeadR · Strengths-based · Powered by Philippe Kassenbeck / OPTIMUP
+      </footer>
     </main>
   );
 }
