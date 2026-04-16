@@ -1,5 +1,6 @@
 import { TALENTS, getTop5Summary } from "@/knowledge/talents";
 import { INDIVIDUAL_QUESTIONS, DOMAIN_QUESTIONS } from "@/knowledge/questions";
+import { GABOR_MATE } from "@/knowledge/talents";
 
 export function buildIndividualCoachingPrompt(context?: {
   coacheeName?: string;
