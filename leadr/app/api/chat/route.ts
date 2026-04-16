@@ -1,4 +1,4 @@
-typescriptimport { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { buildTeamCoachingPrompt } from "@/agents/team-coaching";
 import { buildIndividualCoachingPrompt } from "@/agents/individual-coaching";
