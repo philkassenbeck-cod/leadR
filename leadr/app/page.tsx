@@ -1,6 +1,4 @@
-tsx
-
-import Link from "next/link";
+tsximport Link from "next/link";
 
 export default function Home() {
   return (
@@ -8,7 +6,6 @@ export default function Home() {
       className="min-h-screen flex flex-col items-center justify-center px-6"
       style={{ background: "#FAF7F2" }}
     >
-      {/* Logo */}
       <div className="mb-8 text-center">
         <h1
           className="text-4xl font-medium mb-2"
@@ -24,7 +21,6 @@ export default function Home() {
         </p>
       </div>
 
-      {/* Headline */}
       <div className="max-w-md text-center mb-10">
         <h2
           className="text-2xl font-medium mb-4"
@@ -39,7 +35,6 @@ export default function Home() {
         </p>
       </div>
 
-      {/* CTA Button */}
       <Link
         href="/leadership"
         className="px-10 py-4 rounded-xl text-lg font-medium transition-all duration-200 hover:scale-105"
@@ -52,18 +47,12 @@ export default function Home() {
         Start
       </Link>
 
-      {/* Language indicator */}
-      <p
-        className="mt-6 text-xs tracking-widest"
-        style={{ color: "#C9A96E" }}
-      >
+      <p className="mt-6 text-xs tracking-widest" style={{ color: "#C9A96E" }}>
         FR · EN · DE
       </p>
 
-      {/* Spacer */}
       <div className="flex-1 min-h-[120px]"></div>
 
-      {/* Footer with Coach Pro link */}
       <div
         className="w-full max-w-md pt-6 pb-8 text-center"
         style={{ borderTop: "1px solid #E0D8C8" }}
@@ -76,10 +65,7 @@ export default function Home() {
           Are you a coach? <span style={{ color: "#C9A96E" }}>→</span>
         </Link>
 
-        <p
-          className="mt-4 text-xs tracking-widest"
-          style={{ color: "#C9A96E" }}
-        >
+        <p className="mt-4 text-xs tracking-widest" style={{ color: "#C9A96E" }}>
           OPTIMUP © 2026
         </p>
       </div>
