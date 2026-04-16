@@ -92,10 +92,11 @@ export default function LeadershipPage() {
           </div>
         </div>
         <div className="flex items-center gap-4">
-  <Link href="/profile" className="text-sm hover:underline" style={{ color: "#A8956E" }}>
-    Profile
-  </Link>
-  <AuthStatus />
+          <Link href="/profile" className="text-sm hover:underline" style={{ color: "#A8956E" }}>
+            Profile
+          </Link>
+          <AuthStatus />
+        </div>
       </div>
 
       {/* Step 1: Role selection */}
