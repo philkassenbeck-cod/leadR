@@ -1,4 +1,4 @@
-tsx"use client";
+"use client";
 
 import Chat from "@/components/Chat";
 import Link from "next/link";
