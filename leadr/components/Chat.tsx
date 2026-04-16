@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { createConversation, saveMessage } from "@/lib/conversations";
+import { supabase } from "@/lib/supabase";
 
 type Message = {
   role: "user" | "assistant";
@@ -18,8 +20,16 @@ export default function Chat({ agentId, context = {}, placeholder = "Écris ton 
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setIsLoggedIn(!!data.user);
+    });
+  }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -34,6 +44,21 @@ export default function Chat({ agentId, context = {}, placeholder = "Écris ton 
     setInput("");
     setLoading(true);
 
+    // Create conversation on first message (if logged in)
+    let convId = conversationId;
+    if (!convId && isLoggedIn) {
+      const conv = await createConversation(agentId, text.slice(0, 50));
+      if (conv) {
+        convId = conv.id;
+        setConversationId(conv.id);
+      }
+    }
+
+    // Save user message
+    if (convId) {
+      await saveMessage(convId, "user", text);
+    }
+
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
@@ -41,7 +66,14 @@ export default function Chat({ agentId, context = {}, placeholder = "Écris ton 
         body: JSON.stringify({ messages: newMessages, agentId, context }),
       });
       const data = await res.json();
-      setMessages([...newMessages, { role: "assistant", content: data.response }]);
+      const assistantMessage = data.response;
+      
+      setMessages([...newMessages, { role: "assistant", content: assistantMessage }]);
+
+      // Save assistant message
+      if (convId) {
+        await saveMessage(convId, "assistant", assistantMessage);
+      }
     } catch {
       setMessages([...newMessages, { role: "assistant", content: "Une erreur s'est produite. Réessaie." }]);
     } finally {
