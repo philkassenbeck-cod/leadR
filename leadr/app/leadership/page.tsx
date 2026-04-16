@@ -3,18 +3,16 @@
 import Chat from "@/components/Chat";
 import Link from "next/link";
 import { useState } from "react";
+import AuthStatus from "@/components/AuthStatus";
 
-// Étapes de qualification
 type Step = "role" | "context" | "chat";
 
-// Options de rôle
 const roles = [
   { id: "manager", label: "Manager", description: "I manage a team" },
   { id: "leader", label: "Leader", description: "I lead without direct reports" },
   { id: "executive", label: "Executive", description: "I'm part of senior leadership" },
 ];
 
-// Options de contexte
 const contexts = [
   { id: "feedback", label: "Giving feedback" },
   { id: "delegation", label: "Delegation" },
@@ -32,24 +30,20 @@ export default function LeadershipPage() {
   const [role, setRole] = useState<string | undefined>(undefined);
   const [context, setContext] = useState<string | undefined>(undefined);
 
-  // Quand on sélectionne un rôle
   const selectRole = (roleId: string) => {
     setRole(roleId);
     setStep("context");
   };
 
-  // Quand on sélectionne un contexte
   const selectContext = (contextId: string) => {
     setContext(contextId);
     setStep("chat");
   };
 
-  // Skip vers le chat
   const skipToChat = () => {
     setStep("chat");
   };
 
-  // Revenir en arrière
   const goBack = () => {
     if (step === "context") {
       setStep("role");
@@ -60,7 +54,6 @@ export default function LeadershipPage() {
     }
   };
 
-  // Message de bienvenue personnalisé
   const getWelcomeMessage = () => {
     const roleLabel = roles.find((r) => r.id === role)?.label || "";
     const contextLabel = contexts.find((c) => c.id === context)?.label?.toLowerCase() || "";
@@ -76,26 +69,29 @@ export default function LeadershipPage() {
   return (
     <main className="min-h-screen bg-white max-w-2xl mx-auto px-4">
       {/* Header */}
-      <div className="flex items-center gap-3 py-5 border-b border-gray-100">
-        {step === "role" ? (
-          <Link
-            href="/"
-            className="text-gray-300 hover:text-gray-600 transition-colors text-sm"
-          >
-            ←
-          </Link>
-        ) : (
-          <button
-            onClick={goBack}
-            className="text-gray-300 hover:text-gray-600 transition-colors text-sm"
-          >
-            ←
-          </button>
-        )}
-        <div>
-          <h1 className="font-medium text-gray-900 text-sm">Leadership</h1>
-          <p className="text-xs text-gray-400">Your AI-powered companion</p>
+      <div className="flex items-center justify-between py-5 border-b border-gray-100">
+        <div className="flex items-center gap-3">
+          {step === "role" ? (
+            <Link
+              href="/"
+              className="text-gray-300 hover:text-gray-600 transition-colors text-sm"
+            >
+              ←
+            </Link>
+          ) : (
+            <button
+              onClick={goBack}
+              className="text-gray-300 hover:text-gray-600 transition-colors text-sm"
+            >
+              ←
+            </button>
+          )}
+          <div>
+            <h1 className="font-medium text-gray-900 text-sm">Leadership</h1>
+            <p className="text-xs text-gray-400">Your AI-powered companion</p>
+          </div>
         </div>
+        <AuthStatus />
       </div>
 
       {/* Step 1: Role selection */}
