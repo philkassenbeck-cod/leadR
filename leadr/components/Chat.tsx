@@ -9,6 +9,17 @@ type Message = {
   content: string;
 };
 
+type Profile = {
+  full_name?: string;
+  bio?: string;
+  top5?: string[];
+  language?: string;
+  disc_primary?: string;
+  disc_secondary?: string;
+  insights_primary?: string;
+  insights_secondary?: string;
+};
+
 type Props = {
   agentId: string;
   context?: Record<string, unknown>;
@@ -22,14 +33,30 @@ export default function Chat({ agentId, context = {}, placeholder = "Écris ton 
   const [loading, setLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      setIsLoggedIn(!!data.user);
-    });
+    loadUserAndProfile();
   }, []);
+
+  async function loadUserAndProfile() {
+    const { data: { user } } = await supabase.auth.getUser();
+    setIsLoggedIn(!!user);
+    
+    if (user) {
+      const { data } = await supabase
+        .from("profiles")
+        .select("full_name, bio, top5, language, disc_primary, disc_secondary, insights_primary, insights_secondary")
+        .eq("id", user.id)
+        .single();
+      
+      if (data) {
+        setProfile(data);
+      }
+    }
+  }
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -59,11 +86,30 @@ export default function Chat({ agentId, context = {}, placeholder = "Écris ton 
       await saveMessage(convId, "user", text);
     }
 
+    // Build context with profile data
+    const enrichedContext = {
+      ...context,
+      profile: profile ? {
+        name: profile.full_name,
+        bio: profile.bio,
+        top5: profile.top5,
+        language: profile.language,
+        disc: profile.disc_primary ? {
+          primary: profile.disc_primary,
+          secondary: profile.disc_secondary,
+        } : null,
+        insights: profile.insights_primary ? {
+          primary: profile.insights_primary,
+          secondary: profile.insights_secondary,
+        } : null,
+      } : null,
+    };
+
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: newMessages, agentId, context }),
+        body: JSON.stringify({ messages: newMessages, agentId, context: enrichedContext }),
       });
       const data = await res.json();
       const assistantMessage = data.response;
@@ -95,12 +141,20 @@ export default function Chat({ agentId, context = {}, placeholder = "Écris ton 
     el.style.height = Math.min(el.scrollHeight, 160) + "px";
   }
 
+  // Personalized welcome message
+  const getWelcomeMessage = () => {
+    if (profile?.full_name) {
+      return `Welcome back, ${profile.full_name}! ${welcomeMessage || "What would you like to explore today?"}`;
+    }
+    return welcomeMessage;
+  };
+
   return (
     <div className="flex flex-col h-[calc(100vh-120px)]">
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6">
-        {welcomeMessage && messages.length === 0 && (
-          <div className="text-gray-400 text-sm text-center pt-8">{welcomeMessage}</div>
+        {getWelcomeMessage() && messages.length === 0 && (
+          <div className="text-gray-400 text-sm text-center pt-8">{getWelcomeMessage()}</div>
         )}
         {messages.map((m, i) => (
           <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
@@ -138,7 +192,7 @@ export default function Chat({ agentId, context = {}, placeholder = "Écris ton 
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             onInput={handleInput}
-            placeholder={placeholder}
+            placeholder={profile?.language === "en" ? "Describe your situation..." : profile?.language === "de" ? "Beschreibe deine Situation..." : "Décris ta situation..."}
             rows={1}
             className="flex-1 resize-none text-sm text-gray-800 placeholder-gray-400 outline-none bg-transparent"
             style={{ maxHeight: "160px" }}
@@ -153,7 +207,11 @@ export default function Chat({ agentId, context = {}, placeholder = "Écris ton 
             </svg>
           </button>
         </div>
-        <p className="text-xs text-gray-300 text-center mt-2">Entrée pour envoyer · Shift+Entrée pour nouvelle ligne</p>
+        <p className="text-xs text-gray-300 text-center mt-2">
+          {profile?.language === "en" ? "Enter to send · Shift+Enter for new line" : 
+           profile?.language === "de" ? "Enter zum Senden · Shift+Enter für neue Zeile" :
+           "Entrée pour envoyer · Shift+Entrée pour nouvelle ligne"}
+        </p>
       </div>
     </div>
   );
