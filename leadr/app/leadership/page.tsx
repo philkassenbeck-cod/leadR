@@ -91,7 +91,11 @@ export default function LeadershipPage() {
             <p className="text-xs text-gray-400">Your AI-powered companion</p>
           </div>
         </div>
-        <AuthStatus />
+        <div className="flex items-center gap-4">
+  <Link href="/profile" className="text-sm hover:underline" style={{ color: "#A8956E" }}>
+    Profile
+  </Link>
+  <AuthStatus />
       </div>
 
       {/* Step 1: Role selection */}
