@@ -1,4 +1,4 @@
-import { TALENTS, POSTURE_LEADERSHIP } from "@/knowledge/talents";
+import { TALENTS, POSTURE_LEADERSHIP, GABOR_MATE } from "@/knowledge/talents";
 import {
   DELEGATION,
   MOTIVATION,
