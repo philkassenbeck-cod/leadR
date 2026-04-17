@@ -30,6 +30,7 @@ type Props = {
   context?: Record<string, unknown>;
   placeholder?: string;
   welcomeMessage?: string;
+  language?: string;
 };
 
 export default function Chat({ agentId, context = {}, placeholder, welcomeMessage }: Props) {
