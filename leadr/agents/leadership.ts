@@ -11,10 +11,16 @@ type ProfileContext = {
   };
 };
 
+type LastSessionContext = {
+  date: string;
+  summary: { role: string; content: string }[];
+};
+
 type LeadershipContext = {
   role?: string;
   topic?: string;
   profile?: ProfileContext;
+  lastSession?: LastSessionContext;
 };
 
 const DISC_DESCRIPTIONS: Record<string, string> = {
@@ -60,14 +66,15 @@ export function buildLeadershipPrompt(context?: LeadershipContext): string {
     }
     profileBlock += `\n\nCOMMUNICATION STYLE: ${commStyle}`;
   }
- // Last session context
+
+  // Last session context
   let lastSessionBlock = "";
   if (context?.lastSession) {
-    const lastSession = context.lastSession as { date: string; summary: { role: string; content: string }[] };
-    lastSessionBlock = `\n\nLAST SESSION (${lastSession.date}):\n`;
-    lastSessionBlock += lastSession.summary.map(m => `${m.role}: ${m.content}`).join("\n");
+    lastSessionBlock = `\n\nLAST SESSION (${context.lastSession.date}):\n`;
+    lastSessionBlock += context.lastSession.summary.map(m => `${m.role}: ${m.content}`).join("\n");
     lastSessionBlock += `\n\nIf the user asks for a "résumé", "summary", or "zusammenfassung", provide a warm synthesis of what was discussed last time and propose to continue or start something new.`;
   }
+
   let sessionBlock = "";
   if (context?.role) {
     const roleLabels: Record<string, string> = {
@@ -90,6 +97,7 @@ You work with Philippe Kassenbeck / OPTIMUP, combining strengths-based coaching 
 
 LANGUAGE: Respond in ${lang === "fr" ? "French" : lang === "de" ? "German" : "English"}.
 ${profileBlock}
+${lastSessionBlock}
 ${sessionBlock}
 
 ---
