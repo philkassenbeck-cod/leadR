@@ -33,7 +33,7 @@ type Props = {
   language?: string;
 };
 
-export default function Chat({ agentId, context = {}, placeholder, welcomeMessage }: Props) {
+export default function Chat({ agentId, context = {}, placeholder, welcomeMessage, language = "en" }: Props) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
