@@ -22,13 +22,6 @@ const DISC_STYLES = [
   { id: "C", label: "Conscientiousness", color: "#2563EB", textColor: "#FFFFFF", description: "Analytical, precise" },
 ];
 
-const INSIGHTS_COLORS = [
-  { id: "red", label: "Fiery Red", color: "#DC2626", textColor: "#FFFFFF", description: "Competitive, determined" },
-  { id: "yellow", label: "Sunshine Yellow", color: "#FBBF24", textColor: "#000000", description: "Sociable, dynamic" },
-  { id: "green", label: "Earth Green", color: "#16A34A", textColor: "#FFFFFF", description: "Caring, patient" },
-  { id: "blue", label: "Cool Blue", color: "#2563EB", textColor: "#FFFFFF", description: "Cautious, precise" },
-];
-
 export default function ProfilePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -36,23 +29,14 @@ export default function ProfilePage() {
   const [uploading, setUploading] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   
-  // Profile fields
   const [fullName, setFullName] = useState("");
   const [bio, setBio] = useState("");
   const [top5, setTop5] = useState<string[]>([]);
   const [language, setLanguage] = useState("fr");
   
-  // DISC
   const [discPrimary, setDiscPrimary] = useState<string | null>(null);
   const [discSecondary, setDiscSecondary] = useState<string | null>(null);
   const [discFileUrl, setDiscFileUrl] = useState<string | null>(null);
-  
-  // Insights
-  const [insightsPrimary, setInsightsPrimary] = useState<string | null>(null);
-  const [insightsSecondary, setInsightsSecondary] = useState<string | null>(null);
-  const [insightsFileUrl, setInsightsFileUrl] = useState<string | null>(null);
-  
-  // Strengths file
   const [strengthsFileUrl, setStrengthsFileUrl] = useState<string | null>(null);
   
   const [message, setMessage] = useState("");
@@ -83,15 +67,12 @@ export default function ProfilePage() {
       setDiscPrimary(data.disc_primary || null);
       setDiscSecondary(data.disc_secondary || null);
       setDiscFileUrl(data.disc_file_url || null);
-      setInsightsPrimary(data.insights_primary || null);
-      setInsightsSecondary(data.insights_secondary || null);
-      setInsightsFileUrl(data.insights_file_url || null);
       setStrengthsFileUrl(data.strengths_file_url || null);
     }
     setLoading(false);
   }
 
-  async function uploadFile(file: File, type: "disc" | "insights" | "strengths") {
+  async function uploadFile(file: File, type: "disc" | "strengths") {
     if (!userId) return;
     setUploading(type);
 
@@ -114,7 +95,6 @@ export default function ProfilePage() {
       .getPublicUrl(fileName);
 
     if (type === "disc") setDiscFileUrl(publicUrl);
-    if (type === "insights") setInsightsFileUrl(publicUrl);
     if (type === "strengths") setStrengthsFileUrl(publicUrl);
 
     setUploading(null);
@@ -138,9 +118,6 @@ export default function ProfilePage() {
         disc_primary: discPrimary,
         disc_secondary: discSecondary,
         disc_file_url: discFileUrl,
-        insights_primary: insightsPrimary,
-        insights_secondary: insightsSecondary,
-        insights_file_url: insightsFileUrl,
         strengths_file_url: strengthsFileUrl,
         updated_at: new Date().toISOString(),
       })
@@ -175,21 +152,6 @@ export default function ProfilePage() {
     } else {
       setDiscPrimary(id);
       setDiscSecondary(null);
-    }
-  }
-
-  function selectInsights(id: string) {
-    if (insightsPrimary === id) {
-      setInsightsPrimary(null);
-    } else if (insightsSecondary === id) {
-      setInsightsSecondary(null);
-    } else if (!insightsPrimary) {
-      setInsightsPrimary(id);
-    } else if (!insightsSecondary && insightsPrimary !== id) {
-      setInsightsSecondary(id);
-    } else {
-      setInsightsPrimary(id);
-      setInsightsSecondary(null);
     }
   }
 
@@ -264,7 +226,6 @@ export default function ProfilePage() {
               CliftonStrengths Top 5 ({top5.length}/5)
             </label>
             
-            {/* Selected talents */}
             {top5.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-4">
                 {top5.map((t, i) => (
@@ -280,7 +241,6 @@ export default function ProfilePage() {
               </div>
             )}
 
-            {/* Talent selection */}
             <div className="flex flex-wrap gap-2 mb-4">
               {TALENTS.map((talent) => (
                 <button
@@ -299,7 +259,6 @@ export default function ProfilePage() {
               ))}
             </div>
 
-            {/* Or upload */}
             <div className="pt-3 border-t" style={{ borderColor: "#E5DED3" }}>
               <p className="text-xs mb-2" style={{ color: "#A8956E" }}>Or upload your full report:</p>
               <div className="flex items-center gap-3">
@@ -352,7 +311,6 @@ export default function ProfilePage() {
               ))}
             </div>
 
-            {/* Or upload */}
             <div className="pt-3 border-t" style={{ borderColor: "#E5DED3" }}>
               <p className="text-xs mb-2" style={{ color: "#A8956E" }}>Or upload your DISC report:</p>
               <div className="flex items-center gap-3">
@@ -367,58 +325,6 @@ export default function ProfilePage() {
                 </label>
                 {discFileUrl && (
                   <a href={discFileUrl} target="_blank" className="text-xs underline" style={{ color: "#A8956E" }}>
-                    View uploaded file
-                  </a>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Insights */}
-          <div className="p-5 rounded-xl" style={{ backgroundColor: "#F0EBE0" }}>
-            <label className="block text-sm font-medium mb-3" style={{ color: "#2C2318" }}>
-              Insights Discovery (optional)
-            </label>
-            <p className="text-xs mb-3" style={{ color: "#A8956E" }}>Click to select primary, click again for secondary:</p>
-            
-            <div className="grid grid-cols-4 gap-2 mb-4">
-              {INSIGHTS_COLORS.map((style) => (
-                <button
-                  key={style.id}
-                  onClick={() => selectInsights(style.id)}
-                  className="p-3 rounded-xl text-center transition-all hover:scale-105 relative"
-                  style={{
-                    backgroundColor: style.color,
-                    color: style.textColor,
-                    opacity: insightsPrimary === style.id || insightsSecondary === style.id ? 1 : 0.5,
-                  }}
-                >
-                  {insightsPrimary === style.id && (
-                    <span className="absolute -top-1 -right-1 text-xs font-bold bg-white text-gray-900 w-5 h-5 rounded-full flex items-center justify-center">1</span>
-                  )}
-                  {insightsSecondary === style.id && (
-                    <span className="absolute -top-1 -right-1 text-xs font-bold bg-white text-gray-900 w-5 h-5 rounded-full flex items-center justify-center">2</span>
-                  )}
-                  <div className="text-sm font-bold">{style.label.split(" ")[0]}</div>
-                </button>
-              ))}
-            </div>
-
-            {/* Or upload */}
-            <div className="pt-3 border-t" style={{ borderColor: "#E5DED3" }}>
-              <p className="text-xs mb-2" style={{ color: "#A8956E" }}>Or upload your Insights report:</p>
-              <div className="flex items-center gap-3">
-                <label className="cursor-pointer px-4 py-2 rounded-lg text-sm transition-all hover:scale-105" style={{ backgroundColor: "#FFFFFF", color: "#6B5D4D", border: "1px solid #E5DED3" }}>
-                  {uploading === "insights" ? "Uploading..." : "Upload PDF/Image"}
-                  <input
-                    type="file"
-                    accept=".pdf,.png,.jpg,.jpeg"
-                    className="hidden"
-                    onChange={(e) => e.target.files?.[0] && uploadFile(e.target.files[0], "insights")}
-                  />
-                </label>
-                {insightsFileUrl && (
-                  <a href={insightsFileUrl} target="_blank" className="text-xs underline" style={{ color: "#A8956E" }}>
                     View uploaded file
                   </a>
                 )}
