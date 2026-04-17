@@ -52,6 +52,8 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
         .eq("id", user.id)
         .single();
       
+      console.log("DEBUG - Profile from Supabase:", data);
+      
       if (data) {
         setProfile(data);
       }
@@ -84,6 +86,8 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
       await saveMessage(convId, "user", text);
     }
 
+    console.log("DEBUG - Profile state:", profile);
+
     const enrichedContext = {
       ...context,
       profile: profile ? {
@@ -101,6 +105,8 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
         } : null,
       } : null,
     };
+
+    console.log("DEBUG - Context sent to API:", JSON.stringify(enrichedContext, null, 2));
 
     try {
       const res = await fetch("/api/chat", {
