@@ -2,8 +2,9 @@
 
 import Chat from "@/components/Chat";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AuthStatus from "@/components/AuthStatus";
+import { supabase } from "@/lib/supabase";
 
 type Step = "role" | "context" | "chat";
 
@@ -25,10 +26,47 @@ const contexts = [
   { id: "other", label: "Something else" },
 ];
 
+const languages = [
+  { id: "fr", label: "FR", flag: "🇫🇷" },
+  { id: "en", label: "EN", flag: "🇬🇧" },
+  { id: "de", label: "DE", flag: "🇩🇪" },
+];
+
 export default function LeadershipPage() {
   const [step, setStep] = useState<Step>("role");
   const [role, setRole] = useState<string | undefined>(undefined);
   const [context, setContext] = useState<string | undefined>(undefined);
+  const [language, setLanguage] = useState("fr");
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    loadUserLanguage();
+  }, []);
+
+  async function loadUserLanguage() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      setUserId(user.id);
+      const { data } = await supabase
+        .from("profiles")
+        .select("language")
+        .eq("id", user.id)
+        .single();
+      if (data?.language) {
+        setLanguage(data.language);
+      }
+    }
+  }
+
+  async function changeLanguage(newLang: string) {
+    setLanguage(newLang);
+    if (userId) {
+      await supabase
+        .from("profiles")
+        .update({ language: newLang, updated_at: new Date().toISOString() })
+        .eq("id", userId);
+    }
+  }
 
   const selectRole = (roleId: string) => {
     setRole(roleId);
@@ -91,7 +129,23 @@ export default function LeadershipPage() {
             <p className="text-xs text-gray-400">Your AI-powered companion</p>
           </div>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          {/* Language Selector */}
+          <div className="flex items-center gap-1 border rounded-full px-1 py-1" style={{ borderColor: "#E5DED3" }}>
+            {languages.map((lang) => (
+              <button
+                key={lang.id}
+                onClick={() => changeLanguage(lang.id)}
+                className={`px-2 py-1 rounded-full text-xs font-medium transition-all ${
+                  language === lang.id
+                    ? "bg-gray-900 text-white"
+                    : "text-gray-500 hover:text-gray-900"
+                }`}
+              >
+                {lang.flag}
+              </button>
+            ))}
+          </div>
           <Link href="/profile" className="text-sm hover:underline" style={{ color: "#A8956E" }}>
             Profile
           </Link>
@@ -106,7 +160,7 @@ export default function LeadershipPage() {
             className="text-xl font-medium mb-2"
             style={{ color: "#2C2318", fontFamily: "Georgia, serif" }}
           >
-            What's your role?
+            What&apos;s your role?
           </h2>
           <p className="text-sm text-gray-400 mb-6">
             This helps me tailor my support to your context.
@@ -129,7 +183,7 @@ export default function LeadershipPage() {
             onClick={skipToChat}
             className="mt-6 text-sm text-gray-400 hover:text-gray-600 transition-colors"
           >
-            Skip — I'll explain as we go →
+            Skip — I&apos;ll explain as we go →
           </button>
         </div>
       )}
@@ -163,7 +217,7 @@ export default function LeadershipPage() {
             onClick={skipToChat}
             className="mt-6 text-sm text-gray-400 hover:text-gray-600 transition-colors"
           >
-            Skip — I'll explain as we go →
+            Skip — I&apos;ll explain as we go →
           </button>
         </div>
       )}
