@@ -8,36 +8,128 @@ import { supabase } from "@/lib/supabase";
 
 type Step = "role" | "context" | "chat";
 
-const roles = [
-  { id: "manager", label: "Manager", description: "I manage a team" },
-  { id: "leader", label: "Leader", description: "I manage also managers" },
-  { id: "executive", label: "Executive", description: "I'm part of senior leadership" },
-];
-
-const contexts = [
-  { id: "feedback", label: "Giving feedback" },
-  { id: "delegation", label: "Delegation" },
-  { id: "conflict", label: "Handling conflict" },
-  { id: "communication", label: "Communication & presence" },
-  { id: "team", label: "Team dynamics" },
-  { id: "motivation", label: "Motivation & engagement" },
-  { id: "change", label: "Leading change" },
-  { id: "personal", label: "Personal development" },
-  { id: "other", label: "Something else" },
-];
+const translations = {
+  fr: {
+    title: "Leadership",
+    subtitle: "Ton compagnon IA",
+    roleQuestion: "Quel est ton rôle ?",
+    roleHelp: "Ça m'aide à adapter mon accompagnement à ton contexte.",
+    skip: "Passer — je t'explique en chemin →",
+    contextQuestion: "Sur quoi veux-tu travailler ?",
+    contextHelp: "Choisis un thème, ou passe et dis-moi directement.",
+    profile: "Profil",
+    roles: {
+      manager: { label: "Manager", description: "Je manage une équipe" },
+      leader: { label: "Leader", description: "Je manage aussi des managers" },
+      executive: { label: "Executive", description: "Je fais partie de la direction" },
+    },
+    contexts: {
+      feedback: "Donner du feedback",
+      delegation: "Délégation",
+      conflict: "Gérer les conflits",
+      communication: "Communication & présence",
+      team: "Dynamiques d'équipe",
+      motivation: "Motivation & engagement",
+      change: "Conduire le changement",
+      personal: "Développement personnel",
+      other: "Autre chose",
+    },
+    welcome: (role: string, context: string) => {
+      if (role && context && context !== "other") {
+        return `Bienvenue ! Tu m'as dit que tu es ${role} et que tu veux travailler sur ${context}. Raconte-moi ta situation — que se passe-t-il en ce moment ?`;
+      } else if (role) {
+        return `Bienvenue ! En tant que ${role}, quel défi ou situation voudrais-tu explorer aujourd'hui ?`;
+      }
+      return `Bienvenue ! Quel défi de leadership voudrais-tu explorer aujourd'hui ?`;
+    },
+    placeholder: "Décris ta situation ou pose une question...",
+  },
+  en: {
+    title: "Leadership",
+    subtitle: "Your AI-powered companion",
+    roleQuestion: "What's your role?",
+    roleHelp: "This helps me tailor my support to your context.",
+    skip: "Skip — I'll explain as we go →",
+    contextQuestion: "What would you like to work on?",
+    contextHelp: "Pick a theme, or skip and tell me directly.",
+    profile: "Profile",
+    roles: {
+      manager: { label: "Manager", description: "I manage a team" },
+      leader: { label: "Leader", description: "I manage also managers" },
+      executive: { label: "Executive", description: "I'm part of senior leadership" },
+    },
+    contexts: {
+      feedback: "Giving feedback",
+      delegation: "Delegation",
+      conflict: "Handling conflict",
+      communication: "Communication & presence",
+      team: "Team dynamics",
+      motivation: "Motivation & engagement",
+      change: "Leading change",
+      personal: "Personal development",
+      other: "Something else",
+    },
+    welcome: (role: string, context: string) => {
+      if (role && context && context !== "other") {
+        return `Welcome! You mentioned you're a ${role} looking to work on ${context}. Tell me more about your situation — what's happening right now?`;
+      } else if (role) {
+        return `Welcome! As a ${role}, what challenge or situation would you like to explore today?`;
+      }
+      return `Welcome! What leadership challenge would you like to explore today?`;
+    },
+    placeholder: "Describe your situation or ask a question...",
+  },
+  de: {
+    title: "Leadership",
+    subtitle: "Dein KI-gestützter Begleiter",
+    roleQuestion: "Was ist deine Rolle?",
+    roleHelp: "Das hilft mir, meine Unterstützung an deinen Kontext anzupassen.",
+    skip: "Überspringen — ich erkläre unterwegs →",
+    contextQuestion: "Woran möchtest du arbeiten?",
+    contextHelp: "Wähle ein Thema oder überspringe und erzähl mir direkt.",
+    profile: "Profil",
+    roles: {
+      manager: { label: "Manager", description: "Ich führe ein Team" },
+      leader: { label: "Leader", description: "Ich führe auch Manager" },
+      executive: { label: "Executive", description: "Ich bin Teil der Geschäftsleitung" },
+    },
+    contexts: {
+      feedback: "Feedback geben",
+      delegation: "Delegation",
+      conflict: "Konflikte bewältigen",
+      communication: "Kommunikation & Präsenz",
+      team: "Teamdynamik",
+      motivation: "Motivation & Engagement",
+      change: "Veränderung führen",
+      personal: "Persönliche Entwicklung",
+      other: "Etwas anderes",
+    },
+    welcome: (role: string, context: string) => {
+      if (role && context && context !== "other") {
+        return `Willkommen! Du hast gesagt, du bist ${role} und möchtest an ${context} arbeiten. Erzähl mir mehr — was passiert gerade?`;
+      } else if (role) {
+        return `Willkommen! Als ${role}, welche Herausforderung möchtest du heute erkunden?`;
+      }
+      return `Willkommen! Welche Leadership-Herausforderung möchtest du heute erkunden?`;
+    },
+    placeholder: "Beschreibe deine Situation oder stelle eine Frage...",
+  },
+};
 
 const languages = [
-  { id: "fr", label: "FR", flag: "🇫🇷" },
-  { id: "en", label: "EN", flag: "🇬🇧" },
-  { id: "de", label: "DE", flag: "🇩🇪" },
+  { id: "fr", flag: "🇫🇷" },
+  { id: "en", flag: "🇬🇧" },
+  { id: "de", flag: "🇩🇪" },
 ];
 
 export default function LeadershipPage() {
   const [step, setStep] = useState<Step>("role");
   const [role, setRole] = useState<string | undefined>(undefined);
   const [context, setContext] = useState<string | undefined>(undefined);
-  const [language, setLanguage] = useState("fr");
+  const [language, setLanguage] = useState<"fr" | "en" | "de">("fr");
   const [userId, setUserId] = useState<string | null>(null);
+
+  const t = translations[language];
 
   useEffect(() => {
     loadUserLanguage();
@@ -52,13 +144,13 @@ export default function LeadershipPage() {
         .select("language")
         .eq("id", user.id)
         .single();
-      if (data?.language) {
+      if (data?.language && (data.language === "fr" || data.language === "en" || data.language === "de")) {
         setLanguage(data.language);
       }
     }
   }
 
-  async function changeLanguage(newLang: string) {
+  async function changeLanguage(newLang: "fr" | "en" | "de") {
     setLanguage(newLang);
     if (userId) {
       await supabase
@@ -92,16 +184,13 @@ export default function LeadershipPage() {
     }
   };
 
-  const getWelcomeMessage = () => {
-    const roleLabel = roles.find((r) => r.id === role)?.label || "";
-    const contextLabel = contexts.find((c) => c.id === context)?.label?.toLowerCase() || "";
+  const roleKeys = ["manager", "leader", "executive"] as const;
+  const contextKeys = ["feedback", "delegation", "conflict", "communication", "team", "motivation", "change", "personal", "other"] as const;
 
-    if (role && context && context !== "other") {
-      return `Welcome! You mentioned you're a ${roleLabel} looking to work on ${contextLabel}. Tell me more about your situation — what's happening right now?`;
-    } else if (role) {
-      return `Welcome! As a ${roleLabel}, what challenge or situation would you like to explore today?`;
-    }
-    return `Welcome! What leadership challenge would you like to explore today?`;
+  const getWelcomeMessage = () => {
+    const roleLabel = role ? t.roles[role as keyof typeof t.roles]?.label : "";
+    const contextLabel = context ? t.contexts[context as keyof typeof t.contexts]?.toLowerCase() : "";
+    return t.welcome(roleLabel, contextLabel);
   };
 
   return (
@@ -125,8 +214,8 @@ export default function LeadershipPage() {
             </button>
           )}
           <div>
-            <h1 className="font-medium text-gray-900 text-sm">Leadership</h1>
-            <p className="text-xs text-gray-400">Your AI-powered companion</p>
+            <h1 className="font-medium text-gray-900 text-sm">{t.title}</h1>
+            <p className="text-xs text-gray-400">{t.subtitle}</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -135,7 +224,7 @@ export default function LeadershipPage() {
             {languages.map((lang) => (
               <button
                 key={lang.id}
-                onClick={() => changeLanguage(lang.id)}
+                onClick={() => changeLanguage(lang.id as "fr" | "en" | "de")}
                 className={`px-2 py-1 rounded-full text-xs font-medium transition-all ${
                   language === lang.id
                     ? "bg-gray-900 text-white"
@@ -147,7 +236,7 @@ export default function LeadershipPage() {
             ))}
           </div>
           <Link href="/profile" className="text-sm hover:underline" style={{ color: "#A8956E" }}>
-            Profile
+            {t.profile}
           </Link>
           <AuthStatus />
         </div>
@@ -160,21 +249,21 @@ export default function LeadershipPage() {
             className="text-xl font-medium mb-2"
             style={{ color: "#2C2318", fontFamily: "Georgia, serif" }}
           >
-            What&apos;s your role?
+            {t.roleQuestion}
           </h2>
           <p className="text-sm text-gray-400 mb-6">
-            This helps me tailor my support to your context.
+            {t.roleHelp}
           </p>
 
           <div className="space-y-3">
-            {roles.map((r) => (
+            {roleKeys.map((r) => (
               <button
-                key={r.id}
-                onClick={() => selectRole(r.id)}
+                key={r}
+                onClick={() => selectRole(r)}
                 className="w-full text-left p-4 rounded-xl border border-gray-200 hover:border-gray-400 transition-all"
               >
-                <div className="font-medium text-gray-900">{r.label}</div>
-                <div className="text-sm text-gray-400">{r.description}</div>
+                <div className="font-medium text-gray-900">{t.roles[r].label}</div>
+                <div className="text-sm text-gray-400">{t.roles[r].description}</div>
               </button>
             ))}
           </div>
@@ -183,7 +272,7 @@ export default function LeadershipPage() {
             onClick={skipToChat}
             className="mt-6 text-sm text-gray-400 hover:text-gray-600 transition-colors"
           >
-            Skip — I&apos;ll explain as we go →
+            {t.skip}
           </button>
         </div>
       )}
@@ -195,20 +284,20 @@ export default function LeadershipPage() {
             className="text-xl font-medium mb-2"
             style={{ color: "#2C2318", fontFamily: "Georgia, serif" }}
           >
-            What would you like to work on?
+            {t.contextQuestion}
           </h2>
           <p className="text-sm text-gray-400 mb-6">
-            Pick a theme, or skip and tell me directly.
+            {t.contextHelp}
           </p>
 
           <div className="flex flex-wrap gap-2">
-            {contexts.map((c) => (
+            {contextKeys.map((c) => (
               <button
-                key={c.id}
-                onClick={() => selectContext(c.id)}
+                key={c}
+                onClick={() => selectContext(c)}
                 className="px-4 py-2 rounded-full border border-gray-200 text-sm text-gray-600 hover:border-gray-400 hover:text-gray-900 transition-all"
               >
-                {c.label}
+                {t.contexts[c]}
               </button>
             ))}
           </div>
@@ -217,7 +306,7 @@ export default function LeadershipPage() {
             onClick={skipToChat}
             className="mt-6 text-sm text-gray-400 hover:text-gray-600 transition-colors"
           >
-            Skip — I&apos;ll explain as we go →
+            {t.skip}
           </button>
         </div>
       )}
@@ -227,7 +316,7 @@ export default function LeadershipPage() {
         <Chat
           agentId="leadership"
           context={{ role, topic: context }}
-          placeholder="Describe your situation or ask a question..."
+          placeholder={t.placeholder}
           welcomeMessage={getWelcomeMessage()}
         />
       )}
