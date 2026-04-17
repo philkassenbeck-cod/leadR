@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { createConversation, saveMessage } from "@/lib/conversations";
+import { createConversation, saveMessage, getLastConversation } from "@/lib/conversations";
 import { supabase } from "@/lib/supabase";
 
 type Message = {
@@ -20,6 +20,11 @@ type Profile = {
   insights_secondary?: string;
 };
 
+type LastSession = {
+  conversation: { id: string; title: string; created_at: string };
+  messages: { role: string; content: string; created_at: string }[];
+} | null;
+
 type Props = {
   agentId: string;
   context?: Record<string, unknown>;
@@ -34,6 +39,7 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [lastSession, setLastSession] = useState<LastSession>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -52,10 +58,14 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
         .eq("id", user.id)
         .single();
       
-      console.log("DEBUG - Profile from Supabase:", data);
-      
       if (data) {
         setProfile(data);
+      }
+
+      // Load last conversation
+      const last = await getLastConversation(agentId);
+      if (last && last.messages.length > 0) {
+        setLastSession(last);
       }
     }
   }
@@ -86,8 +96,6 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
       await saveMessage(convId, "user", text);
     }
 
-    console.log("DEBUG - Profile state:", profile);
-
     const enrichedContext = {
       ...context,
       profile: profile ? {
@@ -99,14 +107,15 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
           primary: profile.disc_primary,
           secondary: profile.disc_secondary,
         } : null,
-        insights: profile.insights_primary ? {
-          primary: profile.insights_primary,
-          secondary: profile.insights_secondary,
-        } : null,
+      } : null,
+      lastSession: lastSession ? {
+        date: lastSession.conversation.created_at,
+        summary: lastSession.messages.slice(-6).map(m => ({
+          role: m.role,
+          content: m.content.slice(0, 500),
+        })),
       } : null,
     };
-
-    console.log("DEBUG - Context sent to API:", JSON.stringify(enrichedContext, null, 2));
 
     try {
       const res = await fetch("/api/chat", {
@@ -122,6 +131,9 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
       if (convId) {
         await saveMessage(convId, "assistant", assistantMessage);
       }
+
+      // Clear lastSession after first message (so we don't keep referencing it)
+      setLastSession(null);
     } catch {
       setMessages([...newMessages, { role: "assistant", content: "Une erreur s'est produite. Réessaie." }]);
     } finally {
@@ -151,6 +163,16 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
   };
 
   const getWelcome = () => {
+    if (profile?.full_name && lastSession) {
+      const date = new Date(lastSession.conversation.created_at).toLocaleDateString(
+        profile.language === "fr" ? "fr-FR" : profile.language === "de" ? "de-DE" : "en-US"
+      );
+      return profile.language === "fr" 
+        ? `Bon retour ${profile.full_name} ! La dernière fois (${date}), on a travaillé ensemble. Tape "résumé" pour une synthèse, ou continue avec une nouvelle question.`
+        : profile.language === "de"
+        ? `Willkommen zurück ${profile.full_name}! Letztes Mal (${date}) haben wir zusammengearbeitet. Tippe "zusammenfassung" für eine Synthese, oder stelle eine neue Frage.`
+        : `Welcome back ${profile.full_name}! Last time (${date}), we worked together. Type "summary" for a recap, or continue with a new question.`;
+    }
     if (profile?.full_name && welcomeMessage) {
       return `Welcome back, ${profile.full_name}! ${welcomeMessage}`;
     }
