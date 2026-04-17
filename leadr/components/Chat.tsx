@@ -247,8 +247,8 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
           </button>
         </div>
         <p className="text-xs text-gray-300 text-center mt-2">
-          {profile?.language === "fr" ? "Entrée pour envoyer · Shift+Entrée pour nouvelle ligne" : 
-           profile?.language === "de" ? "Enter zum Senden · Shift+Enter für neue Zeile" :
+          {(language || profile?.language) === "fr" ? "Entrée pour envoyer · Shift+Entrée pour nouvelle ligne" : 
+           (language || profile?.language) === "de" ? "Enter zum Senden · Shift+Enter für neue Zeile" :
            "Enter to send · Shift+Enter for new line"}
         </p>
       </div>
