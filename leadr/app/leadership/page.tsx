@@ -9,7 +9,7 @@ type Step = "role" | "context" | "chat";
 
 const roles = [
   { id: "manager", label: "Manager", description: "I manage a team" },
-  { id: "leader", label: "Leader", description: "I lead without direct reports" },
+  { id: "leader", label: "Leader", description: "I manage also managers" },
   { id: "executive", label: "Executive", description: "I'm part of senior leadership" },
 ];
 
