@@ -54,16 +54,31 @@ export async function getConversations() {
   return data;
 }
 
-export async function getMessages(conversationId: string) {
-  const { data, error } = await supabase
+export async function getLastConversation(agentId: string) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  // Get the most recent conversation for this agent
+  const { data: conversation } = await supabase
+    .from("conversations")
+    .select("id, title, created_at")
+    .eq("user_id", user.id)
+    .eq("agent_id", agentId)
+    .order("updated_at", { ascending: false })
+    .limit(1)
+    .single();
+
+  if (!conversation) return null;
+
+  // Get the messages from that conversation
+  const { data: messages } = await supabase
     .from("messages")
-    .select("*")
-    .eq("conversation_id", conversationId)
+    .select("role, content, created_at")
+    .eq("conversation_id", conversation.id)
     .order("created_at", { ascending: true });
 
-  if (error) {
-    console.error("Error fetching messages:", error);
-    return [];
-  }
-  return data;
+  return {
+    conversation,
+    messages: messages || [],
+  };
 }
