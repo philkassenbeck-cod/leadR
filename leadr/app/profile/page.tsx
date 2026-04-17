@@ -170,7 +170,13 @@ export default function ProfilePage() {
           <h1 className="text-3xl font-light" style={{ color: "#2C2318" }}>Your Profile</h1>
           <Link href="/leadership" className="text-sm hover:underline" style={{ color: "#A8956E" }}>
             ← Back
-          </Link>
+          <button 
+              onClick={() => router.back()} 
+              className="text-sm hover:underline" 
+              style={{ color: "#A8956E" }}
+            >
+              {t.back}
+            </button>
         </div>
 
         <div className="space-y-8">
