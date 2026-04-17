@@ -163,21 +163,28 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
     return "Describe your situation...";
   };
 
-  const getWelcome = () => {
+   const getWelcome = () => {
+    const lang = language || profile?.language || "en";
+    
     if (profile?.full_name && lastSession) {
       const date = new Date(lastSession.conversation.created_at).toLocaleDateString(
-        profile.language === "fr" ? "fr-FR" : profile.language === "de" ? "de-DE" : "en-US"
+        lang === "fr" ? "fr-FR" : lang === "de" ? "de-DE" : "en-US"
       );
-      return profile.language === "fr" 
-        ? `Bon retour ${profile.full_name} ! La dernière fois (${date}), on a travaillé ensemble. Tape "résumé" pour une synthèse, ou continue avec une nouvelle question.`
-        : profile.language === "de"
-        ? `Willkommen zurück ${profile.full_name}! Letztes Mal (${date}) haben wir zusammengearbeitet. Tippe "zusammenfassung" für eine Synthese, oder stelle eine neue Frage.`
-        : `Welcome back ${profile.full_name}! Last time (${date}), we worked together. Type "summary" for a recap, or continue with a new question.`;
+      if (lang === "fr") {
+        return `Bon retour ${profile.full_name} ! La dernière fois (${date}), on a travaillé ensemble. Tape "résumé" pour une synthèse, ou continue avec une nouvelle question.`;
+      } else if (lang === "de") {
+        return `Willkommen zurück ${profile.full_name}! Letztes Mal (${date}) haben wir zusammengearbeitet. Tippe "zusammenfassung" für eine Synthese, oder stelle eine neue Frage.`;
+      }
+      return `Welcome back ${profile.full_name}! Last time (${date}), we worked together. Type "summary" for a recap, or continue with a new question.`;
     }
     if (profile?.full_name && welcomeMessage) {
+      if (lang === "fr") return `Bon retour, ${profile.full_name} ! ${welcomeMessage}`;
+      if (lang === "de") return `Willkommen zurück, ${profile.full_name}! ${welcomeMessage}`;
       return `Welcome back, ${profile.full_name}! ${welcomeMessage}`;
     }
     if (profile?.full_name) {
+      if (lang === "fr") return `Bon retour, ${profile.full_name} ! Qu'aimerais-tu explorer aujourd'hui ?`;
+      if (lang === "de") return `Willkommen zurück, ${profile.full_name}! Was möchtest du heute erkunden?`;
       return `Welcome back, ${profile.full_name}! What would you like to explore today?`;
     }
     return welcomeMessage;
