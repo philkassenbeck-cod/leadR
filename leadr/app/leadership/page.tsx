@@ -318,7 +318,8 @@ export default function LeadershipPage() {
           context={{ role, topic: context }}
           placeholder={t.placeholder}
           welcomeMessage={getWelcomeMessage()}
-        />
+          language={language}
+          />
       )}
     </main>
   );
