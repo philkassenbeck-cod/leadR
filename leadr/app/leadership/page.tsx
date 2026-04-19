@@ -68,7 +68,6 @@ export default function LeadershipPage() {
 
   return (
     <main className="min-h-screen bg-white max-w-2xl mx-auto px-4">
-      {/* Header */}
       <div className="flex items-center justify-between py-5 border-b border-gray-100">
         <div className="flex items-center gap-3">
           {step === "role" ? (
@@ -94,7 +93,6 @@ export default function LeadershipPage() {
         <AuthStatus />
       </div>
 
-      {/* Step 1: Role selection */}
       {step === "role" && (
         <div className="py-8">
           <h2
@@ -129,7 +127,6 @@ export default function LeadershipPage() {
         </div>
       )}
 
-      {/* Step 2: Context selection */}
       {step === "context" && (
         <div className="py-8">
           <h2
@@ -163,7 +160,6 @@ export default function LeadershipPage() {
         </div>
       )}
 
-      {/* Step 3: Chat */}
       {step === "chat" && (
         <Chat
           agentId="leadership"
