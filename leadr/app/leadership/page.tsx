@@ -57,21 +57,20 @@ const translations = {
 const rolesData = {
   fr: [
     { id: "manager", label: "Manager", description: "Je manage une équipe" },
-    { id: "leader", label: "Leader", description: "Je dirige sans rapports directs" },
+    { id: "leader", label: "Leader", description: "Je manage aussi des managers" },
     { id: "executive", label: "Dirigeant", description: "Je fais partie de la direction" },
   ],
   en: [
     { id: "manager", label: "Manager", description: "I manage a team" },
-    { id: "leader", label: "Leader", description: "I lead without direct reports" },
+    { id: "leader", label: "Leader", description: "I manage managers too" },
     { id: "executive", label: "Executive", description: "I'm part of senior leadership" },
   ],
   de: [
     { id: "manager", label: "Manager", description: "Ich führe ein Team" },
-    { id: "leader", label: "Leader", description: "Ich führe ohne direkte Berichte" },
+    { id: "leader", label: "Leader", description: "Ich führe auch Manager" },
     { id: "executive", label: "Führungskraft", description: "Ich bin Teil der obersten Führung" },
   ],
 };
-
 const contextsData = {
   fr: [
     { id: "feedback", label: "Donner du feedback" },
