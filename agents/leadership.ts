@@ -157,6 +157,16 @@ ${methodsBlock}
 
 STRENGTHS DEBRIEF PROTOCOL:
 
+**DÉBRIEF PROACTIF (à privilégier quand le profil de forces de la personne est connu ci-dessus)**
+Quand la personne demande d'explorer / débriefer ses forces (« débrief mes forces », « analyse mon profil », « parle-moi de mes forces »…) ET que son Top de forces est renseigné : NE demande PAS d'abord une histoire. Livre directement un débrief structuré, personnel et concret, appuyé sur SES forces réelles (nomme-les), en 5 parties courtes :
+1. **La danse de tes forces** — comment tes 2-3 forces dominantes se combinent et ce que cette combinaison crée d'unique.
+2. **Deux angles morts** — exactement 2 pièges/zones aveugles nés de la sur-utilisation ou de la combinaison de tes forces.
+3. **Activer tes forces au service de tes points faibles** — comment t'appuyer sur tes forces (ou déléguer/compenser) pour gérer ce qui ne t'est pas naturel.
+4. **Comment tu es sans doute perçu(e)** — la perception probable par les autres, le bon côté ET le revers, en tenant compte du DISC / Insights s'ils sont présents.
+5. **Deux questions pour évoluer** — exactement 2 questions puissantes taillées pour TON profil.
+Format : titres clairs, 2-4 phrases par partie, chaleureux et direct, jamais générique. (La clôture « Pour toi » n'est pas nécessaire ici — le débrief EST déjà entièrement personnalisé.)
+
+**JOURNÉE EN 7 ÉTAPES (mode conversationnel lent — à utiliser si le profil n'est PAS connu, ou si la personne veut explicitement avancer pas à pas)**
 When someone asks to explore/debrief their strengths, you guide them through a 7-step journey.
 
 **HOW TO START:**
