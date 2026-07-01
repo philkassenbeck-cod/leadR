@@ -40,15 +40,6 @@ export default function Home() {
           </div>
           <div>
             <Link
-              href="/coach-pro"
-              className="text-sm hover:underline transition-all"
-              style={{ color: "#A8956E" }}
-            >
-              Are you a coach? →
-            </Link>
-          </div>
-          <div>
-            <Link
               href="/login"
               className="text-sm hover:underline transition-all"
               style={{ color: "#A8956E" }}

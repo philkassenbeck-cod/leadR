@@ -127,6 +127,12 @@ const strengthsTitle: Record<Language, string> = {
   de: "Deine Stärken",
 };
 
+const completeProfilePrompt: Record<Language, string> = {
+  fr: "Ajoute tes forces (import PDF) pour un coaching personnalisé →",
+  en: "Add your strengths (PDF import) for personalized coaching →",
+  de: "Füge deine Stärken hinzu (PDF-Import) für personalisiertes Coaching →",
+};
+
 type ProfileData = {
   full_name?: string;
   top5?: string[];
@@ -212,7 +218,17 @@ export default function LeadershipPage() {
     const forces = (profile.top10?.length ? profile.top10 : profile.top5) || [];
     const hasDisc = !!profile.disc_primary;
     const hasInsights = !!profile.insights_primary;
-    if (forces.length === 0 && !hasDisc && !hasInsights) return null;
+    if (forces.length === 0 && !hasDisc && !hasInsights) {
+      return (
+        <Link
+          href="/profile"
+          className="block rounded-xl border px-4 py-3 mb-4 text-sm hover:underline"
+          style={{ borderColor: "#E5DED3", backgroundColor: "#FAF7F2", color: "#A8956E" }}
+        >
+          {completeProfilePrompt[language]}
+        </Link>
+      );
+    }
     const shownForces = slim ? forces.slice(0, 5) : forces;
 
     return (

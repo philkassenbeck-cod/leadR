@@ -42,7 +42,10 @@ export default function AuthStatus() {
 
   return (
     <div className="flex items-center gap-4 text-sm" style={{ color: "#6B5D4D" }}>
-      <span>{user.email}</span>
+      <Link href="/profile" className="hover:underline" style={{ color: "#A8956E" }}>
+        Profil
+      </Link>
+      <span className="hidden sm:inline">{user.email}</span>
       <button
         onClick={handleSignOut}
         className="hover:underline"
