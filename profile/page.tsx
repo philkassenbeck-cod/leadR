@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 const TALENTS = [
@@ -15,110 +16,17 @@ const TALENTS = [
 ];
 
 const DISC_STYLES = [
-  { id: "D", label: "Dominance", color: "#DC2626", textColor: "#FFFFFF" },
-  { id: "I", label: "Influence", color: "#FBBF24", textColor: "#000000" },
-  { id: "S", label: "Steadiness", color: "#16A34A", textColor: "#FFFFFF" },
-  { id: "C", label: "Conscientiousness", color: "#2563EB", textColor: "#FFFFFF" },
+  { id: "D", label: "Dominance", color: "#DC2626", textColor: "#FFFFFF", description: "Direct, results-oriented" },
+  { id: "I", label: "Influence", color: "#FBBF24", textColor: "#000000", description: "Enthusiastic, optimistic" },
+  { id: "S", label: "Steadiness", color: "#16A34A", textColor: "#FFFFFF", description: "Patient, reliable" },
+  { id: "C", label: "Conscientiousness", color: "#2563EB", textColor: "#FFFFFF", description: "Analytical, precise" },
 ];
 
-const INSIGHTS_STYLES = [
-  { id: "red", label: "Fiery Red", color: "#DC2626", textColor: "#FFFFFF" },
-  { id: "yellow", label: "Sunshine Yellow", color: "#FBBF24", textColor: "#000000" },
-  { id: "green", label: "Earth Green", color: "#16A34A", textColor: "#FFFFFF" },
-  { id: "blue", label: "Cool Blue", color: "#2563EB", textColor: "#FFFFFF" },
-];
-
-const translations = {
-  fr: {
-    title: "Ton Profil",
-    back: "← Retour",
-    fullName: "Nom complet",
-    fullNamePlaceholder: "Ton nom",
-    bio: "Qui suis-je ?",
-    bioHelp: "Quelques lignes sur toi — tes valeurs, ce qui te motive, comment tu te vois en tant que leader.",
-    bioPlaceholder: "Je suis quelqu'un qui...",
-    language: "Langue préférée",
-    strengths: "CliftonStrengths Top 5",
-    strengthsUpload: "Ou télécharge ton rapport complet :",
-    uploadButton: "Télécharger PDF/Image",
-    uploading: "Téléchargement...",
-    viewFile: "Voir le fichier",
-    disc: "Profil DISC (optionnel)",
-    discHelp: "Clique pour sélectionner primaire, clique à nouveau pour secondaire :",
-    discUpload: "Ou télécharge ton rapport DISC :",
-    insights: "Profil Insights Discovery (optionnel)",
-    insightsHelp: "Clique pour sélectionner la couleur primaire, clique à nouveau pour secondaire :",
-    insightsUpload: "Ou télécharge ton rapport Insights :",
-    extracting: "Analyse du rapport…",
-    prefilled: "Pré-rempli depuis ton rapport — tu peux corriger.",
-    save: "Enregistrer le profil",
-    saving: "Enregistrement...",
-    saved: "Profil enregistré !",
-    error: "Erreur lors de l'enregistrement",
-    loading: "Chargement...",
-  },
-  en: {
-    title: "Your Profile",
-    back: "← Back",
-    fullName: "Full Name",
-    fullNamePlaceholder: "Your name",
-    bio: "Who do I think I am?",
-    bioHelp: "A few lines about yourself — your values, what drives you, how you see yourself as a leader.",
-    bioPlaceholder: "I am someone who...",
-    language: "Preferred Language",
-    strengths: "CliftonStrengths Top 5",
-    strengthsUpload: "Or upload your full report:",
-    uploadButton: "Upload PDF/Image",
-    uploading: "Uploading...",
-    viewFile: "View uploaded file",
-    disc: "DISC Profile (optional)",
-    discHelp: "Click to select primary, click again for secondary:",
-    discUpload: "Or upload your DISC report:",
-    insights: "Insights Discovery Profile (optional)",
-    insightsHelp: "Click to select primary colour, click again for secondary:",
-    insightsUpload: "Or upload your Insights report:",
-    extracting: "Analyzing report…",
-    prefilled: "Pre-filled from your report — you can edit.",
-    save: "Save Profile",
-    saving: "Saving...",
-    saved: "Profile saved!",
-    error: "Error saving profile",
-    loading: "Loading...",
-  },
-  de: {
-    title: "Dein Profil",
-    back: "← Zurück",
-    fullName: "Vollständiger Name",
-    fullNamePlaceholder: "Dein Name",
-    bio: "Wer bin ich?",
-    bioHelp: "Ein paar Zeilen über dich — deine Werte, was dich antreibt, wie du dich als Führungskraft siehst.",
-    bioPlaceholder: "Ich bin jemand, der...",
-    language: "Bevorzugte Sprache",
-    strengths: "CliftonStrengths Top 5",
-    strengthsUpload: "Oder lade deinen vollständigen Bericht hoch:",
-    uploadButton: "PDF/Bild hochladen",
-    uploading: "Wird hochgeladen...",
-    viewFile: "Datei ansehen",
-    disc: "DISC-Profil (optional)",
-    discHelp: "Klicke für primär, erneut klicken für sekundär:",
-    discUpload: "Oder lade deinen DISC-Bericht hoch:",
-    insights: "Insights Discovery Profil (optional)",
-    insightsHelp: "Klicke für die primäre Farbe, erneut klicken für sekundär:",
-    insightsUpload: "Oder lade deinen Insights-Bericht hoch:",
-    extracting: "Bericht wird analysiert…",
-    prefilled: "Aus deinem Bericht vorausgefüllt — du kannst korrigieren.",
-    save: "Profil speichern",
-    saving: "Speichern...",
-    saved: "Profil gespeichert!",
-    error: "Fehler beim Speichern",
-    loading: "Laden...",
-  },
-};
-
-const languages = [
-  { id: "fr", label: "Français", flag: "🇫🇷" },
-  { id: "en", label: "English", flag: "🇬🇧" },
-  { id: "de", label: "Deutsch", flag: "🇩🇪" },
+const INSIGHTS_COLORS = [
+  { id: "red", label: "Fiery Red", color: "#DC2626", textColor: "#FFFFFF", description: "Competitive, determined" },
+  { id: "yellow", label: "Sunshine Yellow", color: "#FBBF24", textColor: "#000000", description: "Sociable, dynamic" },
+  { id: "green", label: "Earth Green", color: "#16A34A", textColor: "#FFFFFF", description: "Caring, patient" },
+  { id: "blue", label: "Cool Blue", color: "#2563EB", textColor: "#FFFFFF", description: "Cautious, precise" },
 ];
 
 export default function ProfilePage() {
@@ -128,25 +36,26 @@ export default function ProfilePage() {
   const [uploading, setUploading] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   
+  // Profile fields
   const [fullName, setFullName] = useState("");
   const [bio, setBio] = useState("");
   const [top5, setTop5] = useState<string[]>([]);
-  const [top10, setTop10] = useState<string[]>([]);
-  const [language, setLanguage] = useState<"fr" | "en" | "de">("fr");
-
+  const [language, setLanguage] = useState("fr");
+  
+  // DISC
   const [discPrimary, setDiscPrimary] = useState<string | null>(null);
   const [discSecondary, setDiscSecondary] = useState<string | null>(null);
   const [discFileUrl, setDiscFileUrl] = useState<string | null>(null);
-  const [strengthsFileUrl, setStrengthsFileUrl] = useState<string | null>(null);
-
+  
+  // Insights
   const [insightsPrimary, setInsightsPrimary] = useState<string | null>(null);
   const [insightsSecondary, setInsightsSecondary] = useState<string | null>(null);
   const [insightsFileUrl, setInsightsFileUrl] = useState<string | null>(null);
-
-  const [extracting, setExtracting] = useState<string | null>(null);
+  
+  // Strengths file
+  const [strengthsFileUrl, setStrengthsFileUrl] = useState<string | null>(null);
+  
   const [message, setMessage] = useState("");
-
-  const t = translations[language];
 
   useEffect(() => {
     loadProfile();
@@ -170,92 +79,46 @@ export default function ProfilePage() {
       setFullName(data.full_name || "");
       setBio(data.bio || "");
       setTop5(data.top5 || []);
-      setTop10(data.top10 || []);
-      if (data.language === "fr" || data.language === "en" || data.language === "de") {
-        setLanguage(data.language);
-      }
+      setLanguage(data.language || "fr");
       setDiscPrimary(data.disc_primary || null);
       setDiscSecondary(data.disc_secondary || null);
       setDiscFileUrl(data.disc_file_url || null);
-      setStrengthsFileUrl(data.strengths_file_url || null);
       setInsightsPrimary(data.insights_primary || null);
       setInsightsSecondary(data.insights_secondary || null);
       setInsightsFileUrl(data.insights_file_url || null);
+      setStrengthsFileUrl(data.strengths_file_url || null);
     }
     setLoading(false);
   }
 
-  function readBase64(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve((reader.result as string).split(",")[1] ?? "");
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  }
-
-  async function uploadFile(file: File, type: "disc" | "strengths" | "insights") {
+  async function uploadFile(file: File, type: "disc" | "insights" | "strengths") {
     if (!userId) return;
     setUploading(type);
 
-    // 1) Stockage du fichier — best-effort, NE BLOQUE PAS l'extraction.
     const fileExt = file.name.split(".").pop();
     const fileName = `${userId}/${type}-${Date.now()}.${fileExt}`;
+
     const { error: uploadError } = await supabase.storage
       .from("profiles")
       .upload(fileName, file);
 
     if (uploadError) {
-      console.error("Storage upload error (non bloquant):", uploadError);
-    } else {
-      const { data: { publicUrl } } = supabase.storage
-        .from("profiles")
-        .getPublicUrl(fileName);
-      if (type === "disc") setDiscFileUrl(publicUrl);
-      if (type === "strengths") setStrengthsFileUrl(publicUrl);
-      if (type === "insights") setInsightsFileUrl(publicUrl);
+      console.error("Upload error:", uploadError);
+      setMessage("Error uploading file");
+      setUploading(null);
+      return;
     }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from("profiles")
+      .getPublicUrl(fileName);
+
+    if (type === "disc") setDiscFileUrl(publicUrl);
+    if (type === "insights") setInsightsFileUrl(publicUrl);
+    if (type === "strengths") setStrengthsFileUrl(publicUrl);
 
     setUploading(null);
-
-    // 2) Extraction automatique — TOUJOURS exécutée (ne dépend que du fichier lu en base64).
-    setExtracting(type);
-    try {
-      const base64 = await readBase64(file);
-      const res = await fetch("/api/extract-profile", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ kind: type, mediaType: file.type, data: base64 }),
-      });
-      const extracted = await res.json();
-      let prefilled = false;
-
-      if (type === "strengths") {
-        if (Array.isArray(extracted.top10) && extracted.top10.length) {
-          setTop10(extracted.top10);
-          prefilled = true;
-        }
-        if (Array.isArray(extracted.top5) && extracted.top5.length) {
-          setTop5(extracted.top5);
-          prefilled = true;
-        }
-      } else if (type === "disc" && extracted.disc?.primary) {
-        setDiscPrimary(extracted.disc.primary);
-        setDiscSecondary(extracted.disc.secondary ?? null);
-        prefilled = true;
-      } else if (type === "insights" && extracted.insights?.primary) {
-        setInsightsPrimary(extracted.insights.primary);
-        setInsightsSecondary(extracted.insights.secondary ?? null);
-        prefilled = true;
-      }
-
-      setMessage(prefilled ? t.prefilled : t.saved);
-    } catch (err) {
-      console.error("Extraction error:", err);
-      setMessage(t.saved); // le fichier est stocké ; la saisie manuelle reste possible
-    } finally {
-      setExtracting(null);
-    }
+    setMessage("File uploaded!");
   }
 
   async function saveProfile() {
@@ -271,31 +134,30 @@ export default function ProfilePage() {
         full_name: fullName,
         bio,
         top5,
-        top10,
         language,
         disc_primary: discPrimary,
         disc_secondary: discSecondary,
         disc_file_url: discFileUrl,
-        strengths_file_url: strengthsFileUrl,
         insights_primary: insightsPrimary,
         insights_secondary: insightsSecondary,
         insights_file_url: insightsFileUrl,
+        strengths_file_url: strengthsFileUrl,
         updated_at: new Date().toISOString(),
       })
       .eq("id", user.id);
 
     if (error) {
-      setMessage(t.error);
+      setMessage("Error saving profile");
       console.error(error);
     } else {
-      setMessage(t.saved);
+      setMessage("Profile saved!");
     }
     setSaving(false);
   }
 
   function toggleTalent(talent: string) {
     if (top5.includes(talent)) {
-      setTop5(top5.filter(item => item !== talent));
+      setTop5(top5.filter(t => t !== talent));
     } else if (top5.length < 5) {
       setTop5([...top5, talent]);
     }
@@ -334,7 +196,7 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <main className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#FAF7F2" }}>
-        <p style={{ color: "#A8956E" }}>{t.loading}</p>
+        <p style={{ color: "#A8956E" }}>Loading...</p>
       </main>
     );
   }
@@ -343,43 +205,21 @@ export default function ProfilePage() {
     <main className="min-h-screen px-6 py-12" style={{ backgroundColor: "#FAF7F2" }}>
       <div className="max-w-xl mx-auto">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-light" style={{ color: "#2C2318" }}>{t.title}</h1>
-          <div className="flex items-center gap-3">
-            {/* Language Selector */}
-            <div className="flex items-center gap-1 border rounded-full px-1 py-1" style={{ borderColor: "#E5DED3" }}>
-              {languages.map((lang) => (
-                <button
-                  key={lang.id}
-                  onClick={() => setLanguage(lang.id as "fr" | "en" | "de")}
-                  className={`px-2 py-1 rounded-full text-xs font-medium transition-all ${
-                    language === lang.id
-                      ? "bg-gray-900 text-white"
-                      : "text-gray-500 hover:text-gray-900"
-                  }`}
-                >
-                  {lang.flag}
-                </button>
-              ))}
-            </div>
-            <button 
-              onClick={() => router.back()} 
-              className="text-sm hover:underline" 
-              style={{ color: "#A8956E" }}
-            >
-              {t.back}
-            </button>
-          </div>
+          <h1 className="text-3xl font-light" style={{ color: "#2C2318" }}>Your Profile</h1>
+          <Link href="/leadership" className="text-sm hover:underline" style={{ color: "#A8956E" }}>
+            ← Back
+          </Link>
         </div>
 
         <div className="space-y-8">
           {/* Name */}
           <div>
-            <label className="block text-sm mb-2" style={{ color: "#6B5D4D" }}>{t.fullName}</label>
+            <label className="block text-sm mb-2" style={{ color: "#6B5D4D" }}>Full Name</label>
             <input
               type="text"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              placeholder={t.fullNamePlaceholder}
+              placeholder="Your name"
               className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2"
               style={{ backgroundColor: "#FFFFFF", borderColor: "#E5DED3", color: "#2C2318" }}
             />
@@ -388,15 +228,15 @@ export default function ProfilePage() {
           {/* Bio */}
           <div>
             <label className="block text-sm mb-2" style={{ color: "#6B5D4D" }}>
-              {t.bio}
+              Who do I think I am?
             </label>
             <p className="text-xs mb-2" style={{ color: "#A8956E" }}>
-              {t.bioHelp}
+              A few lines about yourself — your values, what drives you, how you see yourself as a leader.
             </p>
             <textarea
               value={bio}
               onChange={(e) => setBio(e.target.value)}
-              placeholder={t.bioPlaceholder}
+              placeholder="I am someone who..."
               rows={4}
               className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 resize-none"
               style={{ backgroundColor: "#FFFFFF", borderColor: "#E5DED3", color: "#2C2318" }}
@@ -405,54 +245,42 @@ export default function ProfilePage() {
 
           {/* Language */}
           <div>
-            <label className="block text-sm mb-2" style={{ color: "#6B5D4D" }}>{t.language}</label>
+            <label className="block text-sm mb-2" style={{ color: "#6B5D4D" }}>Preferred Language</label>
             <select
               value={language}
-              onChange={(e) => setLanguage(e.target.value as "fr" | "en" | "de")}
+              onChange={(e) => setLanguage(e.target.value)}
               className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2"
               style={{ backgroundColor: "#FFFFFF", borderColor: "#E5DED3", color: "#2C2318" }}
             >
-              {languages.map((lang) => (
-                <option key={lang.id} value={lang.id}>{lang.flag} {lang.label}</option>
-              ))}
+              <option value="fr">Français</option>
+              <option value="en">English</option>
+              <option value="de">Deutsch</option>
             </select>
           </div>
 
           {/* CliftonStrengths */}
           <div className="p-5 rounded-xl" style={{ backgroundColor: "#F0EBE0" }}>
             <label className="block text-sm font-medium mb-3" style={{ color: "#2C2318" }}>
-              {t.strengths} ({top5.length}/5)
+              CliftonStrengths Top 5 ({top5.length}/5)
             </label>
             
+            {/* Selected talents */}
             {top5.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-4">
-                {top5.map((talent, i) => (
+                {top5.map((t, i) => (
                   <button
-                    key={talent}
-                    onClick={() => toggleTalent(talent)}
+                    key={t}
+                    onClick={() => toggleTalent(t)}
                     className="px-3 py-1 rounded-full text-sm font-medium hover:opacity-80"
                     style={{ backgroundColor: "#2C2318", color: "#FAF7F2" }}
                   >
-                    {i + 1}. {talent} ✕
+                    {i + 1}. {t} ✕
                   </button>
                 ))}
               </div>
             )}
 
-            {top10.length > 5 && (
-              <div className="flex flex-wrap gap-2 mb-4">
-                {top10.slice(5).map((talent, i) => (
-                  <span
-                    key={talent}
-                    className="px-3 py-1 rounded-full text-xs"
-                    style={{ backgroundColor: "#E5DED3", color: "#6B5D4D" }}
-                  >
-                    {i + 6}. {talent}
-                  </span>
-                ))}
-              </div>
-            )}
-
+            {/* Talent selection */}
             <div className="flex flex-wrap gap-2 mb-4">
               {TALENTS.map((talent) => (
                 <button
@@ -471,11 +299,12 @@ export default function ProfilePage() {
               ))}
             </div>
 
+            {/* Or upload */}
             <div className="pt-3 border-t" style={{ borderColor: "#E5DED3" }}>
-              <p className="text-xs mb-2" style={{ color: "#A8956E" }}>{t.strengthsUpload}</p>
+              <p className="text-xs mb-2" style={{ color: "#A8956E" }}>Or upload your full report:</p>
               <div className="flex items-center gap-3">
                 <label className="cursor-pointer px-4 py-2 rounded-lg text-sm transition-all hover:scale-105" style={{ backgroundColor: "#FFFFFF", color: "#6B5D4D", border: "1px solid #E5DED3" }}>
-                  {uploading === "strengths" ? t.uploading : extracting === "strengths" ? t.extracting : t.uploadButton}
+                  {uploading === "strengths" ? "Uploading..." : "Upload PDF/Image"}
                   <input
                     type="file"
                     accept=".pdf,.png,.jpg,.jpeg"
@@ -485,7 +314,7 @@ export default function ProfilePage() {
                 </label>
                 {strengthsFileUrl && (
                   <a href={strengthsFileUrl} target="_blank" className="text-xs underline" style={{ color: "#A8956E" }}>
-                    {t.viewFile}
+                    View uploaded file
                   </a>
                 )}
               </div>
@@ -495,9 +324,9 @@ export default function ProfilePage() {
           {/* DISC */}
           <div className="p-5 rounded-xl" style={{ backgroundColor: "#F0EBE0" }}>
             <label className="block text-sm font-medium mb-3" style={{ color: "#2C2318" }}>
-              {t.disc}
+              DISC Profile (optional)
             </label>
-            <p className="text-xs mb-3" style={{ color: "#A8956E" }}>{t.discHelp}</p>
+            <p className="text-xs mb-3" style={{ color: "#A8956E" }}>Click to select primary, click again for secondary:</p>
             
             <div className="grid grid-cols-4 gap-2 mb-4">
               {DISC_STYLES.map((style) => (
@@ -523,11 +352,12 @@ export default function ProfilePage() {
               ))}
             </div>
 
+            {/* Or upload */}
             <div className="pt-3 border-t" style={{ borderColor: "#E5DED3" }}>
-              <p className="text-xs mb-2" style={{ color: "#A8956E" }}>{t.discUpload}</p>
+              <p className="text-xs mb-2" style={{ color: "#A8956E" }}>Or upload your DISC report:</p>
               <div className="flex items-center gap-3">
                 <label className="cursor-pointer px-4 py-2 rounded-lg text-sm transition-all hover:scale-105" style={{ backgroundColor: "#FFFFFF", color: "#6B5D4D", border: "1px solid #E5DED3" }}>
-                  {uploading === "disc" ? t.uploading : extracting === "disc" ? t.extracting : t.uploadButton}
+                  {uploading === "disc" ? "Uploading..." : "Upload PDF/Image"}
                   <input
                     type="file"
                     accept=".pdf,.png,.jpg,.jpeg"
@@ -537,22 +367,22 @@ export default function ProfilePage() {
                 </label>
                 {discFileUrl && (
                   <a href={discFileUrl} target="_blank" className="text-xs underline" style={{ color: "#A8956E" }}>
-                    {t.viewFile}
+                    View uploaded file
                   </a>
                 )}
               </div>
             </div>
           </div>
 
-          {/* Insights Discovery */}
+          {/* Insights */}
           <div className="p-5 rounded-xl" style={{ backgroundColor: "#F0EBE0" }}>
             <label className="block text-sm font-medium mb-3" style={{ color: "#2C2318" }}>
-              {t.insights}
+              Insights Discovery (optional)
             </label>
-            <p className="text-xs mb-3" style={{ color: "#A8956E" }}>{t.insightsHelp}</p>
-
+            <p className="text-xs mb-3" style={{ color: "#A8956E" }}>Click to select primary, click again for secondary:</p>
+            
             <div className="grid grid-cols-4 gap-2 mb-4">
-              {INSIGHTS_STYLES.map((style) => (
+              {INSIGHTS_COLORS.map((style) => (
                 <button
                   key={style.id}
                   onClick={() => selectInsights(style.id)}
@@ -570,16 +400,16 @@ export default function ProfilePage() {
                     <span className="absolute -top-1 -right-1 text-xs font-bold bg-white text-gray-900 w-5 h-5 rounded-full flex items-center justify-center">2</span>
                   )}
                   <div className="text-sm font-bold">{style.label.split(" ")[0]}</div>
-                  <div className="text-xs opacity-80">{style.label.split(" ").slice(1).join(" ")}</div>
                 </button>
               ))}
             </div>
 
+            {/* Or upload */}
             <div className="pt-3 border-t" style={{ borderColor: "#E5DED3" }}>
-              <p className="text-xs mb-2" style={{ color: "#A8956E" }}>{t.insightsUpload}</p>
+              <p className="text-xs mb-2" style={{ color: "#A8956E" }}>Or upload your Insights report:</p>
               <div className="flex items-center gap-3">
                 <label className="cursor-pointer px-4 py-2 rounded-lg text-sm transition-all hover:scale-105" style={{ backgroundColor: "#FFFFFF", color: "#6B5D4D", border: "1px solid #E5DED3" }}>
-                  {uploading === "insights" ? t.uploading : extracting === "insights" ? t.extracting : t.uploadButton}
+                  {uploading === "insights" ? "Uploading..." : "Upload PDF/Image"}
                   <input
                     type="file"
                     accept=".pdf,.png,.jpg,.jpeg"
@@ -589,7 +419,7 @@ export default function ProfilePage() {
                 </label>
                 {insightsFileUrl && (
                   <a href={insightsFileUrl} target="_blank" className="text-xs underline" style={{ color: "#A8956E" }}>
-                    {t.viewFile}
+                    View uploaded file
                   </a>
                 )}
               </div>
@@ -604,10 +434,10 @@ export default function ProfilePage() {
               className="w-full py-3 rounded-full font-medium transition-all hover:scale-105 disabled:opacity-50"
               style={{ backgroundColor: "#2C2318", color: "#FAF7F2" }}
             >
-              {saving ? t.saving : t.save}
+              {saving ? "Saving..." : "Save Profile"}
             </button>
             {message && (
-              <p className="text-center mt-4 text-sm" style={{ color: message.includes("Error") || message.includes("Erreur") || message.includes("Fehler") ? "#DC2626" : "#059669" }}>
+              <p className="text-center mt-4 text-sm" style={{ color: message.includes("Error") ? "#DC2626" : "#059669" }}>
                 {message}
               </p>
             )}
