@@ -361,9 +361,9 @@ export default function ProfilePage() {
                 </button>
               ))}
             </div>
-            <button 
-              onClick={() => router.back()} 
-              className="text-sm hover:underline" 
+            <button
+              onClick={() => router.push("/leadership")}
+              className="text-sm hover:underline"
               style={{ color: "#A8956E" }}
             >
               {t.back}
