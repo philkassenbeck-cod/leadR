@@ -44,7 +44,8 @@ export async function POST(req: NextRequest) {
     const response = await anthropic.messages.create({
       // claude-sonnet-4-20250514 a été retiré le 15/06/2026 → remplacé par Sonnet 5.
       model: "claude-sonnet-5",
-      max_tokens: 1500,
+      // 1500 tronquait les réponses longues (débrief en 5 parties + questions).
+      max_tokens: 4000,
       // Sonnet 5 active la réflexion adaptive par défaut, qui consommerait le budget
       // max_tokens ; on la désactive pour garder des réponses de chat rapides et complètes.
       thinking: { type: "disabled" },
