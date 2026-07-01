@@ -31,6 +31,15 @@ export default function Home() {
         <div className="mt-20 space-y-3">
           <div>
             <Link
+              href="/library"
+              className="text-sm hover:underline transition-all"
+              style={{ color: "#A8956E" }}
+            >
+              Explore the book — The manager-coach →
+            </Link>
+          </div>
+          <div>
+            <Link
               href="/coach-pro"
               className="text-sm hover:underline transition-all"
               style={{ color: "#A8956E" }}

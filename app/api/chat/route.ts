@@ -6,10 +6,11 @@ import { buildSMPPrompt } from "@/agents/smp";
 import { buildSLPPrompt } from "@/agents/slp";
 import { buildOratoryPrompt } from "@/agents/oratory";
 import { buildLeadershipPrompt } from "@/agents/leadership";
+import { buildManagerCoachBookPrompt } from "@/agents/manager-coach-book";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-type AgentId = "team-coaching" | "individual-coaching" | "smp" | "slp" | "oratory" | "leadership";
+type AgentId = "team-coaching" | "individual-coaching" | "smp" | "slp" | "oratory" | "leadership" | "manager-coach-book";
 
 function getSystemPrompt(agentId: AgentId, context: Record<string, unknown>): string {
   switch (agentId) {
@@ -25,6 +26,8 @@ function getSystemPrompt(agentId: AgentId, context: Record<string, unknown>): st
       return buildOratoryPrompt(context as Parameters<typeof buildOratoryPrompt>[0]);
     case "leadership":
       return buildLeadershipPrompt(context as Parameters<typeof buildLeadershipPrompt>[0]);
+    case "manager-coach-book":
+      return buildManagerCoachBookPrompt(context as Parameters<typeof buildManagerCoachBookPrompt>[0]);
     default:
       return buildLeadershipPrompt();
   }
@@ -41,7 +44,10 @@ export async function POST(req: NextRequest) {
     const response = await anthropic.messages.create({
       model: "claude-sonnet-4-20250514",
       max_tokens: 1500,
-      system: systemPrompt,
+      // Prompt caching : le system prompt (volumineux pour les agents à base de
+      // connaissances) est mis en cache par Anthropic ~5 min. Les tours suivants
+      // d'une même conversation réutilisent le cache → coût d'entrée fortement réduit.
+      system: [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }],
       messages,
     });
     const text = response.content
