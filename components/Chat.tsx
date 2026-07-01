@@ -108,6 +108,10 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
           primary: profile.disc_primary,
           secondary: profile.disc_secondary,
         } : null,
+        insights: profile.insights_primary ? {
+          primary: profile.insights_primary,
+          secondary: profile.insights_secondary,
+        } : null,
       } : null,
       lastSession: lastSession ? {
         date: lastSession.conversation.created_at,

@@ -22,6 +22,10 @@ type ProfileContext = {
     primary?: string;
     secondary?: string;
   };
+  insights?: {
+    primary?: string;
+    secondary?: string;
+  };
 };
 
 type LastSessionContext = {
@@ -48,6 +52,20 @@ const DISC_COMMUNICATION: Record<string, string> = {
   I: "Be enthusiastic, recognize their ideas, keep it engaging.",
   S: "Be patient, provide reassurance, create safety before challenge.",
   C: "Be precise, provide logic, respect their need for accuracy.",
+};
+
+const INSIGHTS_DESCRIPTIONS: Record<string, string> = {
+  red: "Fiery Red — assertive, results-driven, direct and decisive; values action, control and outcomes",
+  yellow: "Sunshine Yellow — sociable, enthusiastic, expressive and persuasive; values connection and recognition",
+  green: "Earth Green — caring, patient, supportive and relational; values harmony, trust and stability",
+  blue: "Cool Blue — precise, analytical, deliberate and reserved; values accuracy, depth and quality",
+};
+
+const INSIGHTS_COMMUNICATION: Record<string, string> = {
+  red: "Be brief and bold, focus on outcomes and options, let them decide.",
+  yellow: "Be warm and energetic, acknowledge them personally, keep it light.",
+  green: "Be sincere and patient, build trust before you challenge.",
+  blue: "Be thorough, give evidence and detail, respect their need for precision.",
 };
 
 export function buildLeadershipPrompt(context?: LeadershipContext): string {
@@ -78,6 +96,18 @@ export function buildLeadershipPrompt(context?: LeadershipContext): string {
       profileBlock += `\n- Secondary: ${secondary}`;
     }
     profileBlock += `\n\nCOMMUNICATION STYLE: ${commStyle}`;
+  }
+
+  if (profile?.insights?.primary) {
+    const primary = INSIGHTS_DESCRIPTIONS[profile.insights.primary] || profile.insights.primary;
+    const secondary = profile.insights.secondary ? INSIGHTS_DESCRIPTIONS[profile.insights.secondary] || profile.insights.secondary : null;
+    const commStyle = INSIGHTS_COMMUNICATION[profile.insights.primary] || "";
+
+    profileBlock += `\n\nTHEIR INSIGHTS DISCOVERY PROFILE:\n- Primary: ${primary}`;
+    if (secondary) {
+      profileBlock += `\n- Secondary: ${secondary}`;
+    }
+    profileBlock += `\n\nINSIGHTS COMMUNICATION STYLE: ${commStyle}`;
   }
 
   // Last session context

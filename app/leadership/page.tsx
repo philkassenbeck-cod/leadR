@@ -107,30 +107,64 @@ const contextsData = {
   ],
 };
 
+const DISC_COLORS: Record<string, { label: string; color: string; text: string }> = {
+  D: { label: "Dominance", color: "#DC2626", text: "#FFFFFF" },
+  I: { label: "Influence", color: "#FBBF24", text: "#000000" },
+  S: { label: "Steadiness", color: "#16A34A", text: "#FFFFFF" },
+  C: { label: "Conscientiousness", color: "#2563EB", text: "#FFFFFF" },
+};
+
+const INSIGHTS_COLORS: Record<string, { label: string; color: string; text: string }> = {
+  red: { label: "Fiery Red", color: "#DC2626", text: "#FFFFFF" },
+  yellow: { label: "Sunshine Yellow", color: "#FBBF24", text: "#000000" },
+  green: { label: "Earth Green", color: "#16A34A", text: "#FFFFFF" },
+  blue: { label: "Cool Blue", color: "#2563EB", text: "#FFFFFF" },
+};
+
+const strengthsTitle: Record<Language, string> = {
+  fr: "Tes forces",
+  en: "Your strengths",
+  de: "Deine Stärken",
+};
+
+type ProfileData = {
+  full_name?: string;
+  top5?: string[];
+  top10?: string[];
+  disc_primary?: string | null;
+  disc_secondary?: string | null;
+  insights_primary?: string | null;
+  insights_secondary?: string | null;
+};
+
 export default function LeadershipPage() {
   const [step, setStep] = useState<Step>("role");
   const [role, setRole] = useState<string | undefined>(undefined);
   const [context, setContext] = useState<string | undefined>(undefined);
   const [language, setLanguage] = useState<Language>("en");
   const [profileLoaded, setProfileLoaded] = useState(false);
+  const [profile, setProfile] = useState<ProfileData | null>(null);
 
-  // Load user language from profile
+  // Load user language + profile (strengths/DISC/Insights)
   useEffect(() => {
-    async function loadLanguage() {
+    async function loadProfile() {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const { data } = await supabase
           .from("profiles")
-          .select("language")
+          .select("language, full_name, top5, top10, disc_primary, disc_secondary, insights_primary, insights_secondary")
           .eq("id", user.id)
           .single();
-        if (data?.language && ["fr", "en", "de"].includes(data.language)) {
-          setLanguage(data.language as Language);
+        if (data) {
+          setProfile(data);
+          if (data.language && ["fr", "en", "de"].includes(data.language)) {
+            setLanguage(data.language as Language);
+          }
         }
       }
       setProfileLoaded(true);
     }
-    loadLanguage();
+    loadProfile();
   }, []);
 
   const t = translations[language];
@@ -173,6 +207,54 @@ export default function LeadershipPage() {
     return t.welcomeGeneric;
   };
 
+  function StrengthsCard({ slim = false }: { slim?: boolean }) {
+    if (!profile) return null;
+    const forces = (profile.top10?.length ? profile.top10 : profile.top5) || [];
+    const hasDisc = !!profile.disc_primary;
+    const hasInsights = !!profile.insights_primary;
+    if (forces.length === 0 && !hasDisc && !hasInsights) return null;
+    const shownForces = slim ? forces.slice(0, 5) : forces;
+
+    return (
+      <div className="rounded-xl border px-4 py-3 mb-4" style={{ borderColor: "#E5DED3", backgroundColor: "#FAF7F2" }}>
+        <p className="text-xs mb-2" style={{ color: "#A8956E" }}>{strengthsTitle[language]}</p>
+        {shownForces.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-2">
+            {shownForces.map((f, i) => (
+              <span
+                key={f}
+                className="px-2.5 py-1 rounded-full text-xs"
+                style={{ backgroundColor: i < 5 ? "#2C2318" : "#E5DED3", color: i < 5 ? "#FAF7F2" : "#6B5D4D" }}
+              >
+                {i + 1}. {f}
+              </span>
+            ))}
+          </div>
+        )}
+        {(hasDisc || hasInsights) && (
+          <div className="flex flex-wrap gap-1.5">
+            {[profile.disc_primary, profile.disc_secondary].filter(Boolean).map((d) => {
+              const s = DISC_COLORS[d as string];
+              return s ? (
+                <span key={`d-${d}`} className="px-2.5 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: s.color, color: s.text }}>
+                  DISC · {d}
+                </span>
+              ) : null;
+            })}
+            {[profile.insights_primary, profile.insights_secondary].filter(Boolean).map((c) => {
+              const s = INSIGHTS_COLORS[c as string];
+              return s ? (
+                <span key={`i-${c}`} className="px-2.5 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: s.color, color: s.text }}>
+                  {s.label}
+                </span>
+              ) : null;
+            })}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   // Don't render until profile language is loaded (avoids flash of English)
   if (!profileLoaded) {
     return (
@@ -211,6 +293,7 @@ export default function LeadershipPage() {
 
       {step === "role" && (
         <div className="py-8">
+          <StrengthsCard slim />
           <h2
             className="text-xl font-medium mb-2"
             style={{ color: "#2C2318", fontFamily: "Georgia, serif" }}
@@ -277,13 +360,18 @@ export default function LeadershipPage() {
       )}
 
       {step === "chat" && (
-        <Chat
-          agentId="leadership"
-          context={{ role, topic: context }}
-          placeholder={t.placeholder}
-          welcomeMessage={getWelcomeMessage()}
-          language={language}
-        />
+        <>
+          <div className="pt-4">
+            <StrengthsCard />
+          </div>
+          <Chat
+            agentId="leadership"
+            context={{ role, topic: context }}
+            placeholder={t.placeholder}
+            welcomeMessage={getWelcomeMessage()}
+            language={language}
+          />
+        </>
       )}
     </main>
   );
