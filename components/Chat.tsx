@@ -181,8 +181,15 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
       return;
     }
     const rec = new SR();
-    const lang = language || profile?.language || "en";
-    rec.lang = lang === "fr" ? "fr-FR" : lang === "de" ? "de-DE" : "en-US";
+    const appLang = language || profile?.language;
+    const nav = (typeof navigator !== "undefined" ? navigator.language : "").toLowerCase();
+    // Langue explicite de l'app OU langue du navigateur (français par défaut pour un navigateur FR)
+    rec.lang =
+      appLang === "fr" || nav.startsWith("fr")
+        ? "fr-FR"
+        : appLang === "de" || nav.startsWith("de")
+        ? "de-DE"
+        : "en-US";
     rec.interimResults = false;
     rec.continuous = false;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
