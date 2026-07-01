@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { createConversation, saveMessage, getLastConversation } from "@/lib/conversations";
 import { supabase } from "@/lib/supabase";
 
@@ -203,13 +205,19 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
         {messages.map((m, i) => (
           <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
             <div
-              className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap ${
+              className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                 m.role === "user"
-                  ? "bg-gray-900 text-white rounded-br-sm"
+                  ? "bg-gray-900 text-white rounded-br-sm whitespace-pre-wrap"
                   : "bg-gray-100 text-gray-800 rounded-bl-sm"
               }`}
             >
-              {m.content}
+              {m.role === "user" ? (
+                m.content
+              ) : (
+                <div className="md">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
+                </div>
+              )}
             </div>
           </div>
         ))}
