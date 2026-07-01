@@ -42,8 +42,12 @@ export async function POST(req: NextRequest) {
     }
     const systemPrompt = getSystemPrompt(agentId as AgentId, context);
     const response = await anthropic.messages.create({
-      model: "claude-sonnet-4-20250514",
+      // claude-sonnet-4-20250514 a été retiré le 15/06/2026 → remplacé par Sonnet 5.
+      model: "claude-sonnet-5",
       max_tokens: 1500,
+      // Sonnet 5 active la réflexion adaptive par défaut, qui consommerait le budget
+      // max_tokens ; on la désactive pour garder des réponses de chat rapides et complètes.
+      thinking: { type: "disabled" },
       // Prompt caching : le system prompt (volumineux pour les agents à base de
       // connaissances) est mis en cache par Anthropic ~5 min. Les tours suivants
       // d'une même conversation réutilisent le cache → coût d'entrée fortement réduit.
