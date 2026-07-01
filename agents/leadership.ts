@@ -135,6 +135,11 @@ export function buildLeadershipPrompt(context?: LeadershipContext): string {
     .map(([name, t]) => `- ${name}: ${t.essence} | Shadow: ${t.shadow}`)
     .join("\n");
 
+  const hasProfile = !!(profile?.top5?.length || profile?.disc?.primary || profile?.insights?.primary);
+  const closingDirective = hasProfile
+    ? `\n\n---\nCLÔTURE PERSONNALISÉE — OBLIGATOIRE À CHAQUE RÉPONSE (le profil de la personne est renseigné) :\nTermine TOUJOURS par une courte section « Pour toi${profile?.name ? `, ${profile.name}` : ""} » (≈10 lignes max) qui traduit ce que tu viens d'expliquer en fonction des forces / DISC / Insights SPÉCIFIQUES de la personne :\n- comment SES talents dominants rendent cette approche plus naturelle (ou au contraire risquée / à surveiller) ;\n- sur quelle(s) force(s) précise(s) s'appuyer ici, et quel angle mort guetter ;\n- une micro-action ancrée dans son profil.\nConcret, personnel, jamais générique. Nomme ses forces/couleurs par leur nom.`
+    : "";
+
   // Méthodes maison : index + livre intégral (chapitre du thème mis en avant)
   const chapterId = context?.topic ? TOPIC_TO_CHAPTER[context.topic] : undefined;
   const methodsBlock = buildMethodsBlock(chapterId);
@@ -249,5 +254,5 @@ AVOID:
 - Being vague when you can be precise
 - Des modèles génériques hors méthode OPTIMUP (sandwich, SBI, DESC pour le feedback…) : utilise TOUJOURS la méthode maison correspondante ci-dessus (OSBD, GROW, Hersey & Blanchard, Thomas-Kilmann, Tuckman/Lencioni, autodétermination…).
 
-YOUR TONE: Warm but direct. Affirming but challenging. Personal, never generic.`;
+YOUR TONE: Warm but direct. Affirming but challenging. Personal, never generic.${closingDirective}`;
 }

@@ -43,8 +43,12 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [lastSession, setLastSession] = useState<LastSession>(null);
+  const [listening, setListening] = useState(false);
+  const [micSupported, setMicSupported] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
     loadUserAndProfile();
@@ -162,6 +166,41 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
     el.style.height = Math.min(el.scrollHeight, 160) + "px";
   }
 
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const w = window as any;
+    setMicSupported(!!(w.SpeechRecognition || w.webkitSpeechRecognition));
+  }, []);
+
+  function toggleMic() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SR) return;
+    if (listening) {
+      recognitionRef.current?.stop();
+      return;
+    }
+    const rec = new SR();
+    const lang = language || profile?.language || "en";
+    rec.lang = lang === "fr" ? "fr-FR" : lang === "de" ? "de-DE" : "en-US";
+    rec.interimResults = false;
+    rec.continuous = false;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    rec.onresult = (e: any) => {
+      const transcript = Array.from(e.results)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .map((r: any) => r[0].transcript)
+        .join(" ")
+        .trim();
+      if (transcript) setInput((prev) => (prev ? prev + " " : "") + transcript);
+    };
+    rec.onend = () => setListening(false);
+    rec.onerror = () => setListening(false);
+    recognitionRef.current = rec;
+    setListening(true);
+    rec.start();
+  }
+
   const getPlaceholder = () => {
     if (placeholder) return placeholder;
     if (profile?.language === "fr") return "Décris ta situation...";
@@ -248,6 +287,22 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
             className="flex-1 resize-none text-sm text-gray-800 placeholder-gray-400 outline-none bg-transparent"
             style={{ maxHeight: "160px" }}
           />
+          {micSupported && (
+            <button
+              onClick={toggleMic}
+              type="button"
+              aria-label="Dictée vocale"
+              title={listening ? "Arrêter la dictée" : "Parler"}
+              className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${
+                listening ? "bg-red-500 text-white animate-pulse" : "bg-gray-100 text-gray-500 hover:text-gray-800"
+              }`}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                <path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M5 11a7 7 0 0 0 14 0M12 18v3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          )}
           <button
             onClick={send}
             disabled={!input.trim() || loading}
