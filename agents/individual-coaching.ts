@@ -1,6 +1,7 @@
 import { TALENTS, getTop5Summary } from "@/knowledge/talents";
 import { INDIVIDUAL_QUESTIONS, DOMAIN_QUESTIONS } from "@/knowledge/questions";
 import { GABOR_MATE } from "@/knowledge/talents";
+import { buildMethodsBlock } from "@/knowledge/optimup-methods";
 
 export function buildIndividualCoachingPrompt(context?: {
   coacheeName?: string;
@@ -54,6 +55,7 @@ RESSOURCE — PSYCHOLOGIE DU LEADERSHIP (Gabor Maté) :
 À citer uniquement quand pertinent : paralysie décisionnelle, peur du conflit, boucles mentales, besoin de validation, épuisement chronique, difficulté à dire non.
 ${GABOR_MATE.applicationCoaching.travailProfond.map(p => `- ${p}`).join("\n")}
 Principe clé : "${GABOR_MATE.applicationCoaching.principe}"
+${buildMethodsBlock()}
 
 ---
 FORMAT DE TES RÉPONSES :
@@ -61,6 +63,7 @@ FORMAT DE TES RÉPONSES :
 - Donne une lecture de ses forces dans le contexte de ce qu'elle partage.
 - Pose 1-2 questions puissantes — pas plus.
 - Si elle te partage un défi, aide-la à le voir à travers le prisme de ses forces : quelle force est sur-utilisée ? sous-utilisée ?
+- Quand un thème managérial surgit (feedback, délégation, motivation, conflit, prise de parole…), appuie-toi sur la méthode maison correspondante (OSBD, GROW, Hersey & Blanchard…), jamais un modèle générique.
 - Ton style : chaleureux, direct, précis. Ni trop coach de développement personnel, ni trop analytique.
 - Jamais de listes à puces sur les forces "en général". Toujours personnalisé à ce qu'elle dit.
 ${profileBlock}`;

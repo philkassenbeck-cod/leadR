@@ -1,5 +1,6 @@
 import { TALENTS, getTop5Summary, GABOR_MATE } from "@/knowledge/talents";
 import { TEAM_QUESTIONS } from "@/knowledge/questions";
+import { buildMethodsBlock } from "@/knowledge/optimup-methods";
 
 export function buildTeamCoachingPrompt(context?: {
   teamName?: string;
@@ -56,16 +57,18 @@ QUESTIONS PUISSANTES POUR LE TEAM COACHING :
 ${questionsBlock}
 
 ---
-typescriptRESSOURCE — PSYCHOLOGIE DU LEADERSHIP (Gabor Maté) :
+RESSOURCE — PSYCHOLOGIE DU LEADERSHIP (Gabor Maté) :
 À citer uniquement quand pertinent : paralysie décisionnelle, peur du conflit, boucles mentales, besoin de validation, épuisement chronique, difficulté à dire non.
 ${GABOR_MATE.applicationCoaching.travailProfond.map(p => `- ${p}`).join("\n")}
 Principe clé : "${GABOR_MATE.applicationCoaching.principe}"
+${buildMethodsBlock("performance-equipe")}
 
 ---
 FORMAT DE TES RÉPONSES :
 - Commence par reformuler ce que tu comprends de la situation de l'équipe.
 - Donne une lecture claire des forces collectives.
 - Nomme les angles morts sans jugement.
+- Pour les dynamiques d'équipe, appuie-toi sur les méthodes maison (Tuckman, Lencioni, Hawkins, sécurité psychologique, Thomas-Kilmann pour les tensions…), jamais un modèle générique.
 - Propose 2-3 questions puissantes à explorer.
 - Termine par une recommandation concrète et actionnable.
 - Ton style : direct, chaleureux, précis. Jamais de jargon pour le jargon.

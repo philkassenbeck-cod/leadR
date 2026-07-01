@@ -1,7 +1,7 @@
 import { TALENTS, getTop5Summary, GABOR_MATE } from "@/knowledge/talents";
-import { getChapter } from "@/knowledge/manager-coach-book";
+import { buildMethodsBlock } from "@/knowledge/optimup-methods";
 
-// Thème choisi sur la page /leadership → chapitre méthode du livre « Le manager-coach »
+// Thème choisi sur la page /leadership → chapitre mis en avant (le livre entier reste injecté)
 const TOPIC_TO_CHAPTER: Record<string, string> = {
   feedback: "feedback",
   delegation: "leadership-situationnel",
@@ -12,19 +12,6 @@ const TOPIC_TO_CHAPTER: Record<string, string> = {
   change: "appreciative-inquiry",
   personal: "estime-de-soi",
 };
-
-const METHODS_INDEX = `MÉTHODES OPTIMUP — À UTILISER EN PRIORITÉ (issues du livre « Le manager-coach » de Carole & Philippe Kassenbeck).
-Sur chaque thème, appuie-toi sur LA méthode maison, jamais sur un modèle générique concurrent :
-- Feedback → OSBD (Observation · Sentiment · Besoin · Demande, issu de la CNV de Rosenberg) + Keep/Stop/Start, puis bascule en coaching : « Comment feras-tu pour t'aligner sur … ? ». N'utilise JAMAIS le sandwich, le SBI ni le DESC.
-- Délégation → Leadership situationnel (Hersey & Blanchard : niveaux D1–D4, styles S1–S4 Diriger/Entraîner/Soutenir/Déléguer) + GROW.
-- Coaching → posture GROW (Goal/Reality/Options/Will), questions puissantes, « dompter l'Advice Monster » (Bungay Stanier), habiter le silence.
-- Motivation → autodétermination (Deci & Ryan : autonomie, compétence, appartenance) + Herzberg (hygiène vs moteurs) + matrice hygiène × intrinsèque.
-- Conflit → Thomas-Kilmann (5 modes) + descendre des positions aux intentions + amorces non violentes ; sortir du triangle de Karpman en position Adulte.
-- Performance d'équipe → Tuckman (stades), Lencioni (5 dysfonctionnements), Hawkins (5 disciplines), sécurité psychologique (Edmondson), confiance/vulnérabilité (Brown, BRAVING).
-- Prise de parole → regard porté, respiration, posture (le charisme s'entraîne).
-- Estime de soi / développement perso → 3 piliers (André & Lelord), auto-compassion (Neff), vulnérabilité (Brown), respiration somatique (Elliott).
-- Relation à la hiérarchie → « gérer son patron » : lire ses besoins et son style de décision, rester en position Adulte, règle du « no surprises ».
-Nomme toujours la méthode que tu utilises, et rattache-la aux forces de la personne.`;
 
 type ProfileContext = {
   name?: string;
@@ -118,13 +105,9 @@ export function buildLeadershipPrompt(context?: LeadershipContext): string {
     .map(([name, t]) => `- ${name}: ${t.essence} | Shadow: ${t.shadow}`)
     .join("\n");
 
-  // Méthodes maison : index systématique + chapitre détaillé du thème choisi
-  let methodsBlock = `\n\n---\n\n${METHODS_INDEX}`;
+  // Méthodes maison : index + livre intégral (chapitre du thème mis en avant)
   const chapterId = context?.topic ? TOPIC_TO_CHAPTER[context.topic] : undefined;
-  const chapter = chapterId ? getChapter(chapterId) : undefined;
-  if (chapter) {
-    methodsBlock += `\n\nCHAPITRE DE RÉFÉRENCE POUR CE THÈME — applique cette méthode en détail (cite-la, reprends ses tableaux/étapes) :\n${chapter.body}`;
-  }
+  const methodsBlock = buildMethodsBlock(chapterId);
 
   return `You are a certified Gallup CliftonStrengths coach and leadership expert.
 You work with Philippe Kassenbeck / OPTIMUP, combining strengths-based coaching with deep psychological insight.
