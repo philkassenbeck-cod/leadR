@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { stripMarkdown } from "@/lib/stripMarkdown";
 import { createConversation, saveMessage, getLastConversation } from "@/lib/conversations";
 import { supabase } from "@/lib/supabase";
 
@@ -182,6 +183,14 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
     setAutoPlay(localStorage.getItem("leadr-tts-autoplay") === "1");
   }, []);
 
+  function ttsLang(): string {
+    const appLang = language || profile?.language;
+    const nav = (typeof navigator !== "undefined" ? navigator.language : "").toLowerCase();
+    if (appLang === "fr" || nav.startsWith("fr")) return "fr-FR";
+    if (appLang === "de" || nav.startsWith("de")) return "de-DE";
+    return "en-US";
+  }
+
   function stopAudio() {
     if (audioRef.current) {
       audioRef.current.pause();
@@ -191,7 +200,31 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
       URL.revokeObjectURL(audioUrlRef.current);
       audioUrlRef.current = null;
     }
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
     setPlayingIdx(null);
+  }
+
+  // Repli gratuit : synthèse vocale intégrée du navigateur (voix FR), si ElevenLabs indisponible.
+  function speakBrowser(text: string, idx: number) {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+      stopAudio();
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(stripMarkdown(text));
+    const lang = ttsLang();
+    utter.lang = lang;
+    const voices = window.speechSynthesis.getVoices();
+    const match =
+      voices.find((v) => v.lang === lang) ||
+      voices.find((v) => v.lang.startsWith(lang.slice(0, 2)));
+    if (match) utter.voice = match;
+    utter.onend = () => setPlayingIdx(null);
+    utter.onerror = () => setPlayingIdx(null);
+    setPlayingIdx(idx);
+    window.speechSynthesis.speak(utter);
   }
 
   async function speak(text: string, idx: number) {
@@ -218,8 +251,9 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
       setPlayingIdx(idx);
       await audio.play();
     } catch (err) {
-      console.error("TTS error:", err);
-      stopAudio();
+      // ElevenLabs indisponible (ex. free tier) → repli sur la voix du navigateur.
+      console.warn("TTS ElevenLabs indispo, repli voix navigateur:", err);
+      speakBrowser(text, idx);
     } finally {
       setTtsLoadingIdx(null);
     }
