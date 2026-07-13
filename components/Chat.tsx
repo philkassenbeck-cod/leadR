@@ -181,6 +181,12 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
     const w = window as any;
     setMicSupported(!!(w.SpeechRecognition || w.webkitSpeechRecognition));
     setAutoPlay(localStorage.getItem("leadr-tts-autoplay") === "1");
+    // Précharge les voix de synthèse (chargées en différé) pour éviter qu'une
+    // voix anglaise lise le français au premier clic.
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+    }
   }, []);
 
   function ttsLang(): string {
@@ -213,14 +219,21 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
       return;
     }
     window.speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(stripMarkdown(text));
     const lang = ttsLang();
-    utter.lang = lang;
+    const base = lang.slice(0, 2);
+    const norm = (l: string) => l.replace("_", "-").toLowerCase();
     const voices = window.speechSynthesis.getVoices();
-    const match =
-      voices.find((v) => v.lang === lang) ||
-      voices.find((v) => v.lang.startsWith(lang.slice(0, 2)));
-    if (match) utter.voice = match;
+    // Force une vraie voix de la bonne langue (FR par défaut), en préférant les voix locales.
+    const voice =
+      voices.find((v) => norm(v.lang) === norm(lang) && v.localService) ||
+      voices.find((v) => norm(v.lang) === norm(lang)) ||
+      voices.find((v) => norm(v.lang).startsWith(base) && v.localService) ||
+      voices.find((v) => norm(v.lang).startsWith(base)) ||
+      null;
+    const utter = new SpeechSynthesisUtterance(stripMarkdown(text));
+    utter.lang = voice ? voice.lang : lang;
+    if (voice) utter.voice = voice;
+    utter.rate = 0.95;
     utter.onend = () => setPlayingIdx(null);
     utter.onerror = () => setPlayingIdx(null);
     setPlayingIdx(idx);
