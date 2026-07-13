@@ -43,7 +43,10 @@ export async function POST(req: NextRequest) {
     if (!res.ok) {
       const detail = await res.text().catch(() => "");
       console.error("ElevenLabs error:", res.status, detail.slice(0, 300));
-      return new Response("tts_error", { status: 502 });
+      return Response.json(
+        { error: "tts_error", elevenlabs_status: res.status, detail: detail.slice(0, 300) },
+        { status: 502 },
+      );
     }
 
     const audio = await res.arrayBuffer();
