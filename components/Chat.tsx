@@ -45,10 +45,15 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
   const [lastSession, setLastSession] = useState<LastSession>(null);
   const [listening, setListening] = useState(false);
   const [micSupported, setMicSupported] = useState(false);
+  const [autoPlay, setAutoPlay] = useState(false);
+  const [playingIdx, setPlayingIdx] = useState<number | null>(null);
+  const [ttsLoadingIdx, setTtsLoadingIdx] = useState<number | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recognitionRef = useRef<any>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioUrlRef = useRef<string | null>(null);
 
   useEffect(() => {
     loadUserAndProfile();
@@ -139,6 +144,10 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
       
       setMessages([...newMessages, { role: "assistant", content: assistantMessage }]);
 
+      if (autoPlay && assistantMessage) {
+        speak(assistantMessage, newMessages.length);
+      }
+
       if (convId) {
         await saveMessage(convId, "assistant", assistantMessage);
       }
@@ -170,7 +179,60 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const w = window as any;
     setMicSupported(!!(w.SpeechRecognition || w.webkitSpeechRecognition));
+    setAutoPlay(localStorage.getItem("leadr-tts-autoplay") === "1");
   }, []);
+
+  function stopAudio() {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    if (audioUrlRef.current) {
+      URL.revokeObjectURL(audioUrlRef.current);
+      audioUrlRef.current = null;
+    }
+    setPlayingIdx(null);
+  }
+
+  async function speak(text: string, idx: number) {
+    if (playingIdx === idx) {
+      stopAudio();
+      return;
+    }
+    stopAudio();
+    setTtsLoadingIdx(idx);
+    try {
+      const res = await fetch("/api/tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      if (!res.ok) throw new Error("tts " + res.status);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      audioUrlRef.current = url;
+      const audio = new Audio(url);
+      audioRef.current = audio;
+      audio.onended = () => stopAudio();
+      audio.onerror = () => stopAudio();
+      setPlayingIdx(idx);
+      await audio.play();
+    } catch (err) {
+      console.error("TTS error:", err);
+      stopAudio();
+    } finally {
+      setTtsLoadingIdx(null);
+    }
+  }
+
+  function toggleAutoPlay() {
+    setAutoPlay((prev) => {
+      const next = !prev;
+      localStorage.setItem("leadr-tts-autoplay", next ? "1" : "0");
+      if (!next) stopAudio();
+      return next;
+    });
+  }
 
   function toggleMic() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -250,21 +312,26 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
         )}
         {messages.map((m, i) => (
           <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-            <div
-              className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-                m.role === "user"
-                  ? "bg-gray-900 text-white rounded-br-sm whitespace-pre-wrap"
-                  : "bg-gray-100 text-gray-800 rounded-bl-sm"
-              }`}
-            >
-              {m.role === "user" ? (
-                m.content
-              ) : (
-                <div className="md">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
+            {m.role === "user" ? (
+              <div className="max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap bg-gray-900 text-white rounded-br-sm">
+                {m.content}
+              </div>
+            ) : (
+              <div className="max-w-[80%]">
+                <div className="rounded-2xl px-4 py-3 text-sm leading-relaxed bg-gray-100 text-gray-800 rounded-bl-sm">
+                  <div className="md">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
+                  </div>
                 </div>
-              )}
-            </div>
+                <button
+                  onClick={() => speak(m.content, i)}
+                  type="button"
+                  className="mt-1 ml-1 text-xs text-gray-400 hover:text-gray-700 transition-colors"
+                >
+                  {ttsLoadingIdx === i ? "… audio" : playingIdx === i ? "⏸︎ Stop" : "▶︎ Écouter"}
+                </button>
+              </div>
+            )}
           </div>
         ))}
         {loading && (
@@ -294,6 +361,20 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
             className="flex-1 resize-none text-sm text-gray-800 placeholder-gray-400 outline-none bg-transparent"
             style={{ maxHeight: "160px" }}
           />
+          <button
+            onClick={toggleAutoPlay}
+            type="button"
+            aria-label="Lecture automatique à voix haute"
+            title={autoPlay ? "Lecture auto activée" : "Lecture auto désactivée"}
+            className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${
+              autoPlay ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-500 hover:text-gray-800"
+            }`}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+              <path d="M11 5 6 9H2v6h4l5 4V5z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+              <path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 6a9 9 0 0 1 0 12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+            </svg>
+          </button>
           {micSupported && (
             <button
               onClick={toggleMic}
