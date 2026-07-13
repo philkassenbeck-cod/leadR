@@ -15,30 +15,33 @@ export async function POST(req: NextRequest) {
       console.error("TTS: ELEVENLABS_API_KEY manquante");
       return new Response("missing_key", { status: 500 });
     }
+    const key: string = apiKey;
 
     const body = await req.json();
     const raw = typeof body?.text === "string" ? body.text : "";
     const text = stripMarkdown(raw).slice(0, MAX_CHARS).trim();
     if (!text) return new Response("empty_text", { status: 400 });
 
-    const voiceId = process.env.ELEVENLABS_VOICE_ID || DEFAULT_VOICE_ID;
+    const configuredVoice = process.env.ELEVENLABS_VOICE_ID || DEFAULT_VOICE_ID;
 
-    const res = await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_128`,
-      {
+    const tts = (voiceId: string) =>
+      fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_128`, {
         method: "POST",
-        headers: {
-          "xi-api-key": apiKey,
-          "Content-Type": "application/json",
-          Accept: "audio/mpeg",
-        },
+        headers: { "xi-api-key": key, "Content-Type": "application/json", Accept: "audio/mpeg" },
         body: JSON.stringify({
           text,
           model_id: MODEL_ID,
           voice_settings: { stability: 0.5, similarity_boost: 0.75 },
         }),
-      },
-    );
+      });
+
+    let res = await tts(configuredVoice);
+    // Free tier ElevenLabs : les voix de la Voice Library sont bloquées (402) →
+    // repli automatique sur une voix premade (utilisable en gratuit via l'API).
+    if (res.status === 402 && configuredVoice !== DEFAULT_VOICE_ID) {
+      console.warn("TTS: voix bloquée (402), repli sur la voix premade par défaut");
+      res = await tts(DEFAULT_VOICE_ID);
+    }
 
     if (!res.ok) {
       const detail = await res.text().catch(() => "");
