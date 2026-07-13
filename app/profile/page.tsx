@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type DragEvent } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 
@@ -41,6 +41,7 @@ const translations = {
     strengths: "CliftonStrengths Top 5",
     strengthsUpload: "Ou télécharge ton rapport complet :",
     uploadButton: "Télécharger PDF/Image",
+    dropHint: "ou glisse ton fichier ici",
     uploading: "Téléchargement...",
     viewFile: "Voir le fichier",
     disc: "Profil DISC (optionnel)",
@@ -69,6 +70,7 @@ const translations = {
     strengths: "CliftonStrengths Top 5",
     strengthsUpload: "Or upload your full report:",
     uploadButton: "Upload PDF/Image",
+    dropHint: "or drop your file here",
     uploading: "Uploading...",
     viewFile: "View uploaded file",
     disc: "DISC Profile (optional)",
@@ -97,6 +99,7 @@ const translations = {
     strengths: "CliftonStrengths Top 5",
     strengthsUpload: "Oder lade deinen vollständigen Bericht hoch:",
     uploadButton: "PDF/Bild hochladen",
+    dropHint: "oder Datei hierher ziehen",
     uploading: "Wird hochgeladen...",
     viewFile: "Datei ansehen",
     disc: "DISC-Profil (optional)",
@@ -144,6 +147,7 @@ export default function ProfilePage() {
   const [insightsFileUrl, setInsightsFileUrl] = useState<string | null>(null);
 
   const [extracting, setExtracting] = useState<string | null>(null);
+  const [dragType, setDragType] = useState<"disc" | "strengths" | "insights" | null>(null);
   const [message, setMessage] = useState("");
 
   const t = translations[language];
@@ -192,6 +196,14 @@ export default function ProfilePage() {
       reader.onerror = reject;
       reader.readAsDataURL(file);
     });
+  }
+
+  // Glisser-déposer : on récupère le 1er fichier lâché et on lance le même flux que le bouton.
+  function handleDrop(e: DragEvent, type: "disc" | "strengths" | "insights") {
+    e.preventDefault();
+    setDragType(null);
+    const file = e.dataTransfer.files?.[0];
+    if (file) uploadFile(file, type);
   }
 
   async function uploadFile(file: File, type: "disc" | "strengths" | "insights") {
@@ -493,7 +505,16 @@ export default function ProfilePage() {
 
             <div className="pt-3 border-t" style={{ borderColor: "#E5DED3" }}>
               <p className="text-xs mb-2" style={{ color: "#A8956E" }}>{t.strengthsUpload}</p>
-              <div className="flex items-center gap-3">
+              <div
+                className="flex items-center gap-3 rounded-lg p-3 border-2 border-dashed transition-colors"
+                style={{
+                  borderColor: dragType === "strengths" ? "#A8956E" : "#E5DED3",
+                  backgroundColor: dragType === "strengths" ? "#F0EBE0" : "transparent",
+                }}
+                onDragOver={(e) => { e.preventDefault(); setDragType("strengths"); }}
+                onDragLeave={() => setDragType(null)}
+                onDrop={(e) => handleDrop(e, "strengths")}
+              >
                 <label className="cursor-pointer px-4 py-2 rounded-lg text-sm transition-all hover:scale-105" style={{ backgroundColor: "#FFFFFF", color: "#6B5D4D", border: "1px solid #E5DED3" }}>
                   {uploading === "strengths" ? t.uploading : extracting === "strengths" ? t.extracting : t.uploadButton}
                   <input
@@ -503,6 +524,7 @@ export default function ProfilePage() {
                     onChange={(e) => e.target.files?.[0] && uploadFile(e.target.files[0], "strengths")}
                   />
                 </label>
+                <span className="text-xs" style={{ color: "#A8956E" }}>{t.dropHint}</span>
                 {strengthsFileUrl && (
                   <button type="button" onClick={() => openFile(strengthsFileUrl)} className="text-xs underline" style={{ color: "#A8956E" }}>
                     {t.viewFile}
@@ -545,7 +567,16 @@ export default function ProfilePage() {
 
             <div className="pt-3 border-t" style={{ borderColor: "#E5DED3" }}>
               <p className="text-xs mb-2" style={{ color: "#A8956E" }}>{t.discUpload}</p>
-              <div className="flex items-center gap-3">
+              <div
+                className="flex items-center gap-3 rounded-lg p-3 border-2 border-dashed transition-colors"
+                style={{
+                  borderColor: dragType === "disc" ? "#A8956E" : "#E5DED3",
+                  backgroundColor: dragType === "disc" ? "#F0EBE0" : "transparent",
+                }}
+                onDragOver={(e) => { e.preventDefault(); setDragType("disc"); }}
+                onDragLeave={() => setDragType(null)}
+                onDrop={(e) => handleDrop(e, "disc")}
+              >
                 <label className="cursor-pointer px-4 py-2 rounded-lg text-sm transition-all hover:scale-105" style={{ backgroundColor: "#FFFFFF", color: "#6B5D4D", border: "1px solid #E5DED3" }}>
                   {uploading === "disc" ? t.uploading : extracting === "disc" ? t.extracting : t.uploadButton}
                   <input
@@ -555,6 +586,7 @@ export default function ProfilePage() {
                     onChange={(e) => e.target.files?.[0] && uploadFile(e.target.files[0], "disc")}
                   />
                 </label>
+                <span className="text-xs" style={{ color: "#A8956E" }}>{t.dropHint}</span>
                 {discFileUrl && (
                   <button type="button" onClick={() => openFile(discFileUrl)} className="text-xs underline" style={{ color: "#A8956E" }}>
                     {t.viewFile}
@@ -597,7 +629,16 @@ export default function ProfilePage() {
 
             <div className="pt-3 border-t" style={{ borderColor: "#E5DED3" }}>
               <p className="text-xs mb-2" style={{ color: "#A8956E" }}>{t.insightsUpload}</p>
-              <div className="flex items-center gap-3">
+              <div
+                className="flex items-center gap-3 rounded-lg p-3 border-2 border-dashed transition-colors"
+                style={{
+                  borderColor: dragType === "insights" ? "#A8956E" : "#E5DED3",
+                  backgroundColor: dragType === "insights" ? "#F0EBE0" : "transparent",
+                }}
+                onDragOver={(e) => { e.preventDefault(); setDragType("insights"); }}
+                onDragLeave={() => setDragType(null)}
+                onDrop={(e) => handleDrop(e, "insights")}
+              >
                 <label className="cursor-pointer px-4 py-2 rounded-lg text-sm transition-all hover:scale-105" style={{ backgroundColor: "#FFFFFF", color: "#6B5D4D", border: "1px solid #E5DED3" }}>
                   {uploading === "insights" ? t.uploading : extracting === "insights" ? t.extracting : t.uploadButton}
                   <input
@@ -607,6 +648,7 @@ export default function ProfilePage() {
                     onChange={(e) => e.target.files?.[0] && uploadFile(e.target.files[0], "insights")}
                   />
                 </label>
+                <span className="text-xs" style={{ color: "#A8956E" }}>{t.dropHint}</span>
                 {insightsFileUrl && (
                   <button type="button" onClick={() => openFile(insightsFileUrl)} className="text-xs underline" style={{ color: "#A8956E" }}>
                     {t.viewFile}
