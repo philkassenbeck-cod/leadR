@@ -5,7 +5,8 @@ export const runtime = "nodejs";
 
 // Voix par défaut (fallback) — remplace-la via ELEVENLABS_VOICE_ID par une voix FR/multilingue de ton compte.
 const DEFAULT_VOICE_ID = "21m00Tcm4TlvDq8ikWAM"; // "Rachel" (fonctionne aussi en multilingue)
-const MODEL_ID = "eleven_multilingual_v2";
+// turbo = latence bien plus faible, français toujours bon (au lieu de multilingual_v2 plus lent)
+const MODEL_ID = "eleven_turbo_v2_5";
 const MAX_CHARS = 5000;
 
 export async function POST(req: NextRequest) {

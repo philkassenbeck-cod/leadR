@@ -208,12 +208,11 @@ export default function ProfilePage() {
     if (uploadError) {
       console.error("Storage upload error (non bloquant):", uploadError);
     } else {
-      const { data: { publicUrl } } = supabase.storage
-        .from("profiles")
-        .getPublicUrl(fileName);
-      if (type === "disc") setDiscFileUrl(publicUrl);
-      if (type === "strengths") setStrengthsFileUrl(publicUrl);
-      if (type === "insights") setInsightsFileUrl(publicUrl);
+      // Bucket privé : on stocke le CHEMIN de l'objet (et non une URL publique).
+      // La visualisation génère une URL signée temporaire à la demande (openFile).
+      if (type === "disc") setDiscFileUrl(fileName);
+      if (type === "strengths") setStrengthsFileUrl(fileName);
+      if (type === "insights") setInsightsFileUrl(fileName);
     }
 
     setUploading(null);
@@ -256,6 +255,27 @@ export default function ProfilePage() {
     } finally {
       setExtracting(null);
     }
+  }
+
+  // Bucket privé : la valeur stockée est un chemin d'objet. On gère aussi les
+  // anciennes valeurs (URL publique complète) en extrayant la partie après le bucket.
+  function objectPath(stored: string): string {
+    const marker = "/profiles/";
+    const i = stored.indexOf(marker);
+    return i >= 0 ? stored.slice(i + marker.length) : stored;
+  }
+
+  // Ouvre le rapport via une URL signée temporaire (60 s) — RLS storage owner-only.
+  async function openFile(stored: string | null) {
+    if (!stored) return;
+    const { data, error } = await supabase.storage
+      .from("profiles")
+      .createSignedUrl(objectPath(stored), 60);
+    if (error || !data) {
+      setMessage(t.error);
+      return;
+    }
+    window.open(data.signedUrl, "_blank", "noopener");
   }
 
   async function saveProfile() {
@@ -484,9 +504,9 @@ export default function ProfilePage() {
                   />
                 </label>
                 {strengthsFileUrl && (
-                  <a href={strengthsFileUrl} target="_blank" className="text-xs underline" style={{ color: "#A8956E" }}>
+                  <button type="button" onClick={() => openFile(strengthsFileUrl)} className="text-xs underline" style={{ color: "#A8956E" }}>
                     {t.viewFile}
-                  </a>
+                  </button>
                 )}
               </div>
             </div>
@@ -536,9 +556,9 @@ export default function ProfilePage() {
                   />
                 </label>
                 {discFileUrl && (
-                  <a href={discFileUrl} target="_blank" className="text-xs underline" style={{ color: "#A8956E" }}>
+                  <button type="button" onClick={() => openFile(discFileUrl)} className="text-xs underline" style={{ color: "#A8956E" }}>
                     {t.viewFile}
-                  </a>
+                  </button>
                 )}
               </div>
             </div>
@@ -588,9 +608,9 @@ export default function ProfilePage() {
                   />
                 </label>
                 {insightsFileUrl && (
-                  <a href={insightsFileUrl} target="_blank" className="text-xs underline" style={{ color: "#A8956E" }}>
+                  <button type="button" onClick={() => openFile(insightsFileUrl)} className="text-xs underline" style={{ color: "#A8956E" }}>
                     {t.viewFile}
-                  </a>
+                  </button>
                 )}
               </div>
             </div>

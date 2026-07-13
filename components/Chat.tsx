@@ -55,6 +55,7 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
   const recognitionRef = useRef<any>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioUrlRef = useRef<string | null>(null);
+  const speakTokenRef = useRef(0);
 
   useEffect(() => {
     loadUserAndProfile();
@@ -198,6 +199,7 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
   }
 
   function stopAudio() {
+    speakTokenRef.current++; // invalide toute lecture en cours de préparation
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current = null;
@@ -245,31 +247,44 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
       stopAudio();
       return;
     }
-    stopAudio();
+    stopAudio(); // incrémente le token → annule toute lecture précédente encore en préparation
+    const token = ++speakTokenRef.current;
     setTtsLoadingIdx(idx);
+
+    let blobUrl: string | null = null;
     try {
       const res = await fetch("/api/tts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text }),
       });
+      if (token !== speakTokenRef.current) return; // remplacée par une lecture plus récente
       if (!res.ok) throw new Error("tts " + res.status);
       const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      audioUrlRef.current = url;
-      const audio = new Audio(url);
-      audioRef.current = audio;
-      audio.onended = () => stopAudio();
-      audio.onerror = () => stopAudio();
-      setPlayingIdx(idx);
-      await audio.play();
+      if (token !== speakTokenRef.current) return;
+      blobUrl = URL.createObjectURL(blob);
     } catch (err) {
-      // ElevenLabs indisponible (ex. free tier) → repli sur la voix du navigateur.
+      if (token !== speakTokenRef.current) return;
+      setTtsLoadingIdx(null);
+      // Échec réseau/ElevenLabs → repli sur la voix du navigateur.
       console.warn("TTS ElevenLabs indispo, repli voix navigateur:", err);
       speakBrowser(text, idx);
-    } finally {
-      setTtsLoadingIdx(null);
+      return;
     }
+
+    if (token !== speakTokenRef.current) {
+      URL.revokeObjectURL(blobUrl);
+      return;
+    }
+    audioUrlRef.current = blobUrl;
+    const audio = new Audio(blobUrl);
+    audioRef.current = audio;
+    audio.onended = () => stopAudio();
+    audio.onerror = () => stopAudio();
+    setPlayingIdx(idx);
+    setTtsLoadingIdx(null);
+    // Lecture bloquée (politique autoplay) → on arrête, PAS de repli navigateur (évite la double lecture).
+    audio.play().catch(() => stopAudio());
   }
 
   function toggleAutoPlay() {
