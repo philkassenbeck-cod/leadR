@@ -40,6 +40,7 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [streaming, setStreaming] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -90,7 +91,7 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
 
   async function send() {
     const text = input.trim();
-    if (!text || loading) return;
+    if (!text || loading || streaming) return;
 
     const newMessages: Message[] = [...messages, { role: "user", content: text }];
     setMessages(newMessages);
@@ -155,10 +156,27 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
         setMessages([...newMessages, { role: "assistant", content: "Tu as atteint ta limite d'échanges pour aujourd'hui. Reviens demain 🙂" }]);
         return;
       }
-      const data = await res.json();
-      const assistantMessage = data.response;
-      
-      setMessages([...newMessages, { role: "assistant", content: assistantMessage }]);
+      if (!res.ok || !res.body) {
+        setMessages([...newMessages, { role: "assistant", content: "Une erreur s'est produite. Réessaie." }]);
+        return;
+      }
+
+      // Lecture en flux : on affiche la réponse au fur et à mesure qu'elle arrive.
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let assistantMessage = "";
+      let started = false;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        assistantMessage += decoder.decode(value, { stream: true });
+        if (!started) {
+          started = true;
+          setLoading(false);   // on remplace les « … » par le texte qui s'écrit
+          setStreaming(true);
+        }
+        setMessages([...newMessages, { role: "assistant", content: assistantMessage }]);
+      }
 
       if (autoPlay && assistantMessage) {
         speak(assistantMessage, newMessages.length);
@@ -174,6 +192,7 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
       setMessages([...newMessages, { role: "assistant", content: "Une erreur s'est produite. Réessaie." }]);
     } finally {
       setLoading(false);
+      setStreaming(false);
     }
   }
 
@@ -469,7 +488,7 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
           )}
           <button
             onClick={send}
-            disabled={!input.trim() || loading}
+            disabled={!input.trim() || loading || streaming}
             className="w-8 h-8 rounded-full bg-gray-900 text-white flex items-center justify-center disabled:opacity-30 transition-opacity flex-shrink-0"
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">

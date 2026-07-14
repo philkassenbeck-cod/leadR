@@ -70,7 +70,10 @@ export async function POST(req: NextRequest) {
     }
 
     const systemPrompt = getSystemPrompt(agentId as AgentId, context);
-    const response = await anthropic.messages.create({
+
+    // Streaming : on renvoie la réponse au fur et à mesure qu'elle se génère
+    // (affichage progressif côté client → ressenti bien plus rapide).
+    const anthropicStream = anthropic.messages.stream({
       // claude-sonnet-4-20250514 a été retiré le 15/06/2026 → remplacé par Sonnet 5.
       model: "claude-sonnet-5",
       // 1500 tronquait les réponses longues (débrief en 5 parties + questions).
@@ -84,11 +87,26 @@ export async function POST(req: NextRequest) {
       system: [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }],
       messages,
     });
-    const text = response.content
-      .filter((b) => b.type === "text")
-      .map((b) => b.text)
-      .join("");
-    return NextResponse.json({ response: text });
+
+    const encoder = new TextEncoder();
+    const readable = new ReadableStream<Uint8Array>({
+      async start(controller) {
+        try {
+          for await (const event of anthropicStream) {
+            if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
+              controller.enqueue(encoder.encode(event.delta.text));
+            }
+          }
+          controller.close();
+        } catch (err) {
+          controller.error(err);
+        }
+      },
+    });
+
+    return new Response(readable, {
+      headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" },
+    });
   } catch (err) {
     console.error("API error:", err);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
