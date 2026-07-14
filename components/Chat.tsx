@@ -135,12 +135,26 @@ export default function Chat({ agentId, context = {}, placeholder, welcomeMessag
       } : null,
     };
 
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ messages: newMessages, agentId, context: enrichedContext }),
       });
+      if (res.status === 401) {
+        setMessages([...newMessages, { role: "assistant", content: "Pour discuter avec le coach, connecte-toi d'abord — [Se connecter](/login)." }]);
+        return;
+      }
+      if (res.status === 429) {
+        setMessages([...newMessages, { role: "assistant", content: "Tu as atteint ta limite d'échanges pour aujourd'hui. Reviens demain 🙂" }]);
+        return;
+      }
       const data = await res.json();
       const assistantMessage = data.response;
       

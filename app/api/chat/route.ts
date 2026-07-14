@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { createClient } from "@supabase/supabase-js";
 import { buildTeamCoachingPrompt } from "@/agents/team-coaching";
 import { buildIndividualCoachingPrompt } from "@/agents/individual-coaching";
 import { buildSMPPrompt } from "@/agents/smp";
@@ -9,6 +10,9 @@ import { buildLeadershipPrompt } from "@/agents/leadership";
 import { buildManagerCoachBookPrompt } from "@/agents/manager-coach-book";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+// Plafond de messages/jour par utilisateur (anti-« aspirateur » de contenu).
+const DAILY_MESSAGE_LIMIT = 80;
 
 type AgentId = "team-coaching" | "individual-coaching" | "smp" | "slp" | "oratory" | "leadership" | "manager-coach-book";
 
@@ -40,6 +44,31 @@ export async function POST(req: NextRequest) {
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json({ error: "messages requis" }, { status: 400 });
     }
+
+    // Accès réservé aux utilisateurs connectés (invités) — le livre est inédit, pas d'accès anonyme.
+    const token = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
+    if (!token) {
+      return NextResponse.json({ error: "auth_required" }, { status: 401 });
+    }
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { global: { headers: { Authorization: `Bearer ${token}` } }, auth: { persistSession: false } },
+    );
+    const { data: userData, error: userErr } = await supabase.auth.getUser();
+    if (userErr || !userData?.user) {
+      return NextResponse.json({ error: "auth_required" }, { status: 401 });
+    }
+
+    // Limite d'usage anti-« aspirateur » : plafond quotidien par utilisateur.
+    // Échoue en mode « ouvert » si la fonction SQL n'existe pas encore (l'auth protège déjà).
+    const { data: allowed, error: rlErr } = await supabase.rpc("record_chat_usage", {
+      p_limit: DAILY_MESSAGE_LIMIT,
+    });
+    if (!rlErr && allowed === false) {
+      return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+    }
+
     const systemPrompt = getSystemPrompt(agentId as AgentId, context);
     const response = await anthropic.messages.create({
       // claude-sonnet-4-20250514 a été retiré le 15/06/2026 → remplacé par Sonnet 5.
